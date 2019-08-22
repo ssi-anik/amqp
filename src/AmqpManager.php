@@ -130,6 +130,8 @@ class AmqpManager
 
             if ($exchange = $pMsg->getExchange()) {
                 $pMsg->setExchange($exchange->mergeProperties($exchangeConfig));
+            } else {
+                $pMsg->setExchange(new Exchange($exchangeConfig['name'], $exchangeConfig));
             }
 
             $passableMessages[] = $pMsg;
