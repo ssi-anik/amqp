@@ -15,7 +15,8 @@
         "php-amqplib/php-amqplib": "^2.9",
         "illuminate/container": "^5.8",
         "illuminate/pipeline": "^5.8",
-        "illuminate/support": "^5.8"
+        "illuminate/support": "^5.8",
+        "laravel/helpers": "^1.1"
     },
     "require-dev": {},
     "autoload": {

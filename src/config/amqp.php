@@ -18,7 +18,10 @@ return [
                 'vhost'           => env('AMQP_VHOST', '/'),
                 'connect_options' => [],
                 'ssl_options'     => [],
+                'ssl_protocol'    => 'ssl',
             ],
+
+            'channel_id' => null,
 
             'message' => [
                 'content_type'     => 'text/plain',
