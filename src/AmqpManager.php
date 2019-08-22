@@ -72,9 +72,7 @@ class AmqpManager
     }
 
     private function connect (array $config) : AbstractConnection {
-        return new AMQPSSLConnection($config['host'], $config['port'], $config['username'], $config['password'],
-            $config['vhost'], $config['ssl_options'] ?? [], $config['connect_options'] ?? [],
-            $config['ssl_protocol'] ?? 'ssl');
+        return new AMQPSSLConnection($config['host'], $config['port'], $config['username'], $config['password'], $config['vhost'], $config['ssl_options'] ?? [], $config['connect_options'] ?? [], $config['ssl_protocol'] ?? 'ssl');
     }
 
     protected function acquireChannel ($name, AbstractConnection $connection, $channelId) {
@@ -122,16 +120,23 @@ class AmqpManager
         $defaultConfig = $this->getConfig($name);
 
         $messageDefault = $defaultConfig['message'] ?? [];
-        $passableMessage = $this->constructMessage($message, array_merge($messageDefault, $config['message'] ?? []));
 
         /* Set exchange properties */
         $exchangeConfig = array_merge($defaultConfig['exchange'], $config['exchange'] ?? []);
-        if ($exchange = $passableMessage->getExchange()) {
-            $passableMessage->setExchange($exchange->mergeProperties($exchangeConfig));
+
+        $passableMessages = [];
+        foreach ( (!is_array($message) ? [ $message ] : $message) as $msg ) {
+            $pMsg = $this->constructMessage($msg, array_merge($messageDefault, $config['message'] ?? []));
+
+            if ($exchange = $pMsg->getExchange()) {
+                $pMsg->setExchange($exchange->mergeProperties($exchangeConfig));
+            }
+
+            $passableMessages[] = $pMsg;
         }
 
         /* @var \Anik\Amqp\Publisher $publisher */
         $publisher = app(Publisher::class);
-        $publisher->setChannel($channel)->publish($passableMessage, $routingKey);
+        $publisher->setChannel($channel)->publishBulk($passableMessages, $routingKey);
     }
 }
