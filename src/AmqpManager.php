@@ -5,7 +5,6 @@ namespace Anik\Amqp;
 use Anik\Amqp\Exceptions\AmqpException;
 use Illuminate\Container\Container;
 use InvalidArgumentException;
-use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Connection\AMQPSSLConnection;
 
@@ -82,7 +81,32 @@ class AmqpManager
         return $this->channels[$name][$channelId] ?? ($this->channels[$name][$channelId] = $connection->channel($channelId));
     }
 
-    public function publish ($message, array $config = []) {
+    /**
+     * @param string|\Anik\Amqp\PublishableMessage $message
+     * @param array                                $config
+     *
+     * @return \Anik\Amqp\PublishableMessage
+     *
+     * @throws \Anik\Amqp\Exceptions\AmqpException
+     */
+    private function constructMessage ($message, array $config = []) : PublishableMessage {
+        $publishable = $message;
+        if (is_string($message)) {
+            $publishable = new PublishableMessage($message);
+        } elseif ($message instanceof PublishableMessage) {
+            $config = array_merge($message->getProperties(), $config);
+        } else {
+            throw new AmqpException('Message can be typeof string or Anik\Amqp\PublishableMessage.');
+        }
+
+        if (count($config)) {
+            $publishable->setProperties($config);
+        }
+
+        return $publishable;
+    }
+
+    public function publish ($message, $routingKey, array $config = []) {
         /**
          * Connection and channels are not closed on purpose
          * - Check here "Don’t open and close connections or channels repeatedly" - https://www.cloudamqp.com/blog/2018-01-19-part4-rabbitmq-13-common-errors.html
@@ -93,5 +117,21 @@ class AmqpManager
         $connection = $this->getConnection($name);
         $channelId = $this->guessChannelId($config['channel_id'] ?? null, $name);
         $channel = $this->acquireChannel($name, $connection, $channelId);
+
+        /* No exception raised, configuration available */
+        $defaultConfig = $this->getConfig($name);
+
+        $messageDefault = $defaultConfig['message'] ?? [];
+        $passableMessage = $this->constructMessage($message, array_merge($messageDefault, $config['message'] ?? []));
+
+        /* Set exchange properties */
+        $exchangeConfig = array_merge($defaultConfig['exchange'], $config['exchange'] ?? []);
+        if ($exchange = $passableMessage->getExchange()) {
+            $passableMessage->setExchange($exchange->mergeProperties($exchangeConfig));
+        }
+
+        /* @var \Anik\Amqp\Publisher $publisher */
+        $publisher = app(Publisher::class);
+        $publisher->setChannel($channel)->publish($passableMessage, $routingKey);
     }
 }
