@@ -30,14 +30,15 @@ return [
             ],
 
             'exchange' => [
-                'name'        => env('AMQP_EXCHANGE_NAME', 'amq.topic'),
-                'type'        => env('AMQP_EXCHANGE_TYPE', 'topic'),
-                'passive'     => env('AMQP_EXCHANGE_PASSIVE', false),
-                'durable'     => env('AMQP_EXCHANGE_DURABLE', true),
-                'auto_delete' => env('AMQP_EXCHANGE_AUTO_DEL', false),
-                'internal'    => env('AMQP_EXCHANGE_INTERNAL', false),
-                'nowait'      => env('AMQP_EXCHANGE_NOWAIT', false),
-                'properties'  => [],
+                'name'             => env('AMQP_EXCHANGE_NAME', 'amq.topic'),
+                'exchange_declare' => env('AMQP_EXCHANGE_DECLARE', false),
+                'type'             => env('AMQP_EXCHANGE_TYPE', 'topic'),
+                'passive'          => env('AMQP_EXCHANGE_PASSIVE', false),
+                'durable'          => env('AMQP_EXCHANGE_DURABLE', true),
+                'auto_delete'      => env('AMQP_EXCHANGE_AUTO_DEL', false),
+                'internal'         => env('AMQP_EXCHANGE_INTERNAL', false),
+                'nowait'           => env('AMQP_EXCHANGE_NOWAIT', false),
+                'properties'       => [],
             ],
 
             'queue' => [
