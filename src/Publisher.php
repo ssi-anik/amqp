@@ -59,7 +59,7 @@ class Publisher
 
         $channel = $this->getChannel();
 
-        if (isset($ep['exchange_declare']) && $ep['exchange_declare']) {
+        if (isset($ep['declare']) && $ep['declare']) {
             $channel->exchange_declare($ep['name'], $ep['type'], $ep['passive'] ?? false, $ep['durable'] ?? true, $ep['auto_delete'] ?? false, $ep['internal'] ?? false, $ep['nowait'] ?? false, new AMQPTable($ep['properties'] ?? []));
         }
 
