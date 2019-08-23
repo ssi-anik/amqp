@@ -55,10 +55,6 @@ class Consumer
             ])))->handle();
         };
 
-        while ( $channel->is_consuming() ) {
-            $channel->wait();
-        }
-
         /* Exchange properties */
         $ep = $handler->getExchange()->getProperties();
         if (isset($ep['declare']) && $ep['declare']) {
@@ -68,8 +64,13 @@ class Consumer
         /* Queue properties */
         $qp = $handler->getQueue()->getProperties();
 
-        if (empty($qp['name']) || (isset($qp['declare']) && $ep['declare'])) {
-            $this->queueInfo = $channel->queue_declare($qp['name'], $qp['passive'] ?? false, $qp['durable'] ?? true, $qp['exclusive'] ?? true, $qp['auto_delete'] ?? false, $qp['nowait'] ?? false, new AMQPTable($qp['properties'] ?? []));
+        if (!isset($qp['name']) || empty($qp['name']) || (isset($qp['declare']) && $qp['declare'])) {
+            // you cannot nowait while the queue doesn't have any name. Queue name is required. Overwrite the `$qp['nowait']` value to `true` forcefully.
+            if (empty($handler->getQueue()->getName()) && (!isset($qp['nowait']) || true == $qp['nowait'])) {
+                $qp['nowait'] = false;
+            }
+            $r = $channel->queue_declare($handler->getQueue()->getName(), $qp['passive'] ?? false, $qp['durable'] ?? true, $qp['exclusive'] ?? true, $qp['auto_delete'] ?? false, $qp['nowait'] ?? false, new AMQPTable($qp['properties'] ?? []));
+            $this->queueInfo = $r ?: [];
         }
 
         $channel->queue_bind($handler->getQueue()->getName(), $handler->getExchange()->getName(), $bindingKey);
@@ -82,18 +83,5 @@ class Consumer
         while ( $channel->is_consuming() ) {
             $channel->wait();
         }
-
-        /*if (isset($ep['exchange_declare']) && $ep['exchange_declare']) {
-            $channel->exchange_declare($ep['name'], $ep['type'], $ep['passive'] ?? false, $ep['durable'] ?? true, $ep['auto_delete'] ?? false, $ep['internal'] ?? false, $ep['nowait'] ?? false, new AMQPTable($ep['properties'] ?? []));
-        }
-
-        $max = 200;
-        foreach ( $messages as $message ) {
-            $channel->batch_basic_publish(new AMQPMessage($message->getStream(), $message->getProperties()), $ep['name'], $routingKey);
-
-            --$max <= 0 ? $max = 200 && $channel->publish_batch() : null;
-        }
-
-        $channel->publish_batch();*/
     }
 }
