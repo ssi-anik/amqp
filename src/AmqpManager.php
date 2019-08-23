@@ -147,7 +147,7 @@ class AmqpManager
             if ($pMsg->getExchange()) {
                 // if an exchange is passed, name is possibly not there in properties. If present, it'll be overwritten
                 $classExProp = array_merge($pMsg->getExchange()->getProperties(), [
-                    'name' => $pMsg->getExchange()->getName()
+                    'name' => $pMsg->getExchange()->getName(),
                 ]);
             }
             // dynamic value > class value > default values
@@ -171,37 +171,40 @@ class AmqpManager
         /* No exception raised, configuration available */
         $defaultConfig = $this->getConfig($name);
 
-        // dynamic value > class value > default values
-
-        $mergedExchangeConfig = array_merge($defaultConfig['exchange'] ?? [], $config['exchange'] ?? []);
-
-        $mergedQueueConfig = array_merge($defaultConfig['queue'] ?? [], $config['queue'] ?? []);
-
-        $mergedQosConfig = array_merge($defaultConfig['qos'] ?? [], $config['qos'] ?? []);
-
-        $mergedConsumerConfig = array_merge($defaultConfig['consumer'] ?? [], $config['consumer'] ?? []);
-
         $handler = $this->constructReceivableMessage($closure);
 
+        $exClassProp = [];
         if ($ex = $handler->getExchange()) {
-            $handler->setExchange($ex->mergeProperties($mergedExchangeConfig));
-        } else {
-            $handler->setExchange(new Exchange($mergedExchangeConfig['name'] ?? '', $mergedExchangeConfig));
+            // if an exchange properties has name key that name will be overwritten by the exchange class's name
+            $exClassProp = array_merge($ex->getProperties(), [
+                'name' => $ex->getName(),
+            ]);
         }
+        /* dynamic value > class value > default values */
+        $mergedExchangeConfig = array_merge($defaultConfig['exchange'] ?? [], $exClassProp, $config['exchange'] ?? []);
+        $handler->setExchange(new Exchange($mergedExchangeConfig['name'] ?? '', $mergedExchangeConfig));
 
+        $qClassProp = [];
         if ($q = $handler->getQueue()) {
-            $handler->setQueue($q->mergeProperties($mergedQueueConfig));
-        } else {
-            $handler->setQueue(new Queue($mergedQueueConfig['name'] ?? '', $mergedQueueConfig));
+            // if a queue properties has name key that name will be overwritten by the queue class's name
+            $qClassProp = array_merge($q->getProperties(), [
+                'name' => $q->getName(),
+            ]);
         }
+        /* dynamic value > class value > default values */
+        $mergedQueueConfig = array_merge($defaultConfig['queue'] ?? [], $qClassProp, $config['queue'] ?? []);
+        $handler->setQueue(new Queue($mergedQueueConfig['name'] ?? '', $mergedQueueConfig));
 
+        $conClassProp = [];
         if ($cons = $handler->getConsumer()) {
-            $handler->setConsumer($cons->mergeProperties($mergedConsumerConfig));
-        } else {
-            $handler->setConsumer(new AmqpConsumer($mergedConsumerConfig));
+            $conClassProp = $cons->getProperties();
         }
+        /* dynamic value > class value > default values */
+        $mergedConsumerConfig = array_merge($defaultConfig['consumer'] ?? [], $conClassProp, $config['consumer'] ?? []);
+        $handler->setConsumer(new AmqpConsumer($mergedConsumerConfig));
 
         /* QoS is not attached to any exchange, queue */
+        $mergedQosConfig = array_merge($defaultConfig['qos'] ?? [], $config['qos'] ?? []);
         if (isset($mergedQosConfig['enabled']) && $mergedQosConfig['enabled']) {
             $channel->basic_qos($mergedQosConfig['qos_prefetch_size'], $mergedQosConfig['qos_prefetch_count'], $mergedQosConfig['qos_a_global']);
         }
