@@ -29,17 +29,6 @@ class Delivery
     }
 
     /**
-     * @param array $properties
-     *
-     * @return \Anik\Amqp\Delivery
-     */
-    public function mergeProperties (array $properties) : self {
-        $this->properties = array_merge($this->properties, $properties);
-
-        return $this;
-    }
-
-    /**
      * Acknowledge a message
      */
     public function acknowledge () {

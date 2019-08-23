@@ -46,15 +46,4 @@ class Queue
 
         return $this;
     }
-
-    /**
-     * @param array $properties
-     *
-     * @return \Anik\Amqp\Queue
-     */
-    public function mergeProperties (array $properties) : self {
-        $this->properties = array_merge($this->properties, $properties);
-
-        return $this;
-    }
 }

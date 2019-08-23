@@ -46,15 +46,4 @@ class Exchange
 
         return $this;
     }
-
-    /**
-     * @param array $properties
-     *
-     * @return \Anik\Amqp\Exchange
-     */
-    public function mergeProperties (array $properties) : self {
-        $this->properties = array_merge($this->properties, $properties);
-
-        return $this;
-    }
 }
