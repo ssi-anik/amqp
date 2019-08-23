@@ -62,17 +62,20 @@ class Consumer
 
         /* Queue properties */
         $qp = $handler->getQueue()->getProperties();
-
         if (!isset($qp['name']) || empty($qp['name']) || (isset($qp['declare']) && $qp['declare'])) {
             // you cannot nowait while the queue doesn't have any name. Queue name is required. Overwrite the `$qp['nowait']` value to `true` forcefully.
             if (empty($handler->getQueue()->getName()) && (!isset($qp['nowait']) || true == $qp['nowait'])) {
                 $qp['nowait'] = false;
             }
-            $r = $channel->queue_declare($handler->getQueue()->getName(), $qp['passive'] ?? false, $qp['durable'] ?? true, $qp['exclusive'] ?? true, $qp['auto_delete'] ?? false, $qp['nowait'] ?? false, new AMQPTable($qp['properties'] ?? []));
+            $r = $channel->queue_declare($handler->getQueue()
+                                                 ->getName(), $qp['passive'] ?? false, $qp['durable'] ?? true, $qp['exclusive'] ?? true, $qp['auto_delete'] ?? false, $qp['nowait'] ?? false, new AMQPTable($qp['properties'] ?? []));
             $this->queueInfo = $r ?: [];
         }
 
-        $channel->queue_bind($handler->getQueue()->getName(), $handler->getExchange()->getName(), $bindingKey);
+        // No queue can be bound to the default exchange.
+        if ($handler->getExchange()->getName()) {
+            $channel->queue_bind($handler->getQueue()->getName(), $handler->getExchange()->getName(), $bindingKey);
+        }
 
         /* Consumer properties */
         $consProp = $handler->getConsumer()->getProperties();
