@@ -138,6 +138,8 @@ class AmqpManager
 
         $messageDefault = $defaultConfig['message'] ?? [];
 
+        // dynamic value > class value > default values
+
         /* Set exchange properties */
         $exchangeConfig = array_merge($defaultConfig['exchange'], $config['exchange'] ?? []);
 
@@ -148,7 +150,8 @@ class AmqpManager
             if ($exchange = $pMsg->getExchange()) {
                 $pMsg->setExchange($exchange->mergeProperties($exchangeConfig));
             } else {
-                $pMsg->setExchange(new Exchange($exchangeConfig['name'], $exchangeConfig));
+
+                $pMsg->setExchange(new Exchange($exchangeConfig['name'] ?? '', $exchangeConfig));
             }
 
             $passableMessages[] = $pMsg;
@@ -206,7 +209,5 @@ class AmqpManager
         /* @var \Anik\Amqp\Consumer $consumer */
         $consumer = app(Consumer::class);
         $consumer->setChannel($channel)->consume($handler, $bindingKey);
-
-        dd($mergedExchangeConfig, $mergedQueueConfig, $mergedQosConfig);
     }
 }
