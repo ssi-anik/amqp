@@ -49,7 +49,7 @@ class Consumer
         $channel = $this->getChannel();
 
         $callback = function (AMQPMessage $msg) use ($handler) {
-            $handler->setStream($msg->body)->setDeliveryInfo((new Delivery([
+            $handler->setStream($msg->body)->setAmqpMessage($msg)->setDeliveryInfo((new Delivery([
                 'body'          => $msg->body,
                 'delivery_info' => $msg->delivery_info,
             ])))->handle();

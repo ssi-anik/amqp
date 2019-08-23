@@ -2,9 +2,11 @@
 
 namespace Anik\Amqp;
 
+use PhpAmqpLib\Message\AMQPMessage;
+
 abstract class ConsumableMessage
 {
-    private $stream, $properties, $exchange, $queue, $consumer, $deliveryInfo;
+    private $stream, $properties, $exchange, $queue, $consumer, $deliveryInfo, $amqpMessage;
 
     public function __construct (string $stream = '', array $properties = []) {
         $this->stream = $stream;
@@ -120,4 +122,22 @@ abstract class ConsumableMessage
     }
 
     abstract public function handle ();
+
+    /**
+     * @return \PhpAmqpLib\Message\AMQPMessage|null
+     */
+    public function getAmqpMessage () : ?AMQPMessage {
+        return $this->amqpMessage;
+    }
+
+    /**
+     * @param \PhpAmqpLib\Message\AMQPMessage $amqpMessage
+     *
+     * @return \Anik\Amqp\ConsumableMessage
+     */
+    public function setAmqpMessage (AMQPMessage $amqpMessage) : ConsumableMessage {
+        $this->amqpMessage = $amqpMessage;
+
+        return $this;
+    }
 }
