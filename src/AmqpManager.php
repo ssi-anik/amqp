@@ -138,21 +138,21 @@ class AmqpManager
 
         $messageDefault = $defaultConfig['message'] ?? [];
 
-        // dynamic value > class value > default values
-
-        /* Set exchange properties */
-        $exchangeConfig = array_merge($defaultConfig['exchange'], $config['exchange'] ?? []);
-
         $passableMessages = [];
         foreach ( (!is_array($message) ? [ $message ] : $message) as $msg ) {
             $pMsg = $this->constructMessage($msg, array_merge($messageDefault, $config['message'] ?? []));
 
-            if ($exchange = $pMsg->getExchange()) {
-                $pMsg->setExchange($exchange->mergeProperties($exchangeConfig));
-            } else {
-
-                $pMsg->setExchange(new Exchange($exchangeConfig['name'] ?? '', $exchangeConfig));
+            /* Merge exchange properties */
+            $classExProp = [];
+            if ($pMsg->getExchange()) {
+                // if an exchange is passed, name is possibly not there in properties. If present, it'll be overwritten
+                $classExProp = array_merge($pMsg->getExchange()->getProperties(), [
+                    'name' => $pMsg->getExchange()->getName()
+                ]);
             }
+            // dynamic value > class value > default values
+            $exchangeConfig = array_merge($defaultConfig['exchange'] ?? [], $classExProp, $config['exchange'] ?? []);
+            $pMsg->setExchange(new Exchange($exchangeConfig['name'] ?? '', $exchangeConfig));
 
             $passableMessages[] = $pMsg;
         }
