@@ -74,7 +74,7 @@ class Consumer
 
         // No queue can be bound to the default exchange.
         if ($handler->getExchange()->getName()) {
-            $channel->queue_bind($handler->getQueue()->getName(), $handler->getExchange()->getName(), $bindingKey);
+            $channel->queue_bind($handler->getQueue()->getName(), $handler->getExchange()->getName(), $bindingKey, $qp['nowait'] ?? false, new AMQPTable($qp['properties'] ?? []));
         }
 
         /* Consumer properties */
