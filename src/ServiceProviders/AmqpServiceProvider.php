@@ -27,6 +27,10 @@ class AmqpServiceProvider extends ServiceProvider
             return new Publisher();
         });
 
+        $this->app->bind(Consumer::class, function () {
+            return new Consumer();
+        });
+
         if (!str_contains($this->app->version(), 'Lumen')) {
             $this->publishes([
                 __DIR__ . '/../config/amqp.php' => config_path('amqp.php'),

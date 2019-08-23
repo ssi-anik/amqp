@@ -3,6 +3,7 @@
 namespace Anik\Amqp;
 
 use Anik\Amqp\Exceptions\AmqpException;
+use Closure;
 use Illuminate\Container\Container;
 use InvalidArgumentException;
 use PhpAmqpLib\Connection\AbstractConnection;
@@ -104,6 +105,22 @@ class AmqpManager
         return $publishable;
     }
 
+    /**
+     * @param $closure
+     *
+     * @return \Anik\Amqp\ConsumableMessage
+     * @throws \Anik\Amqp\Exceptions\AmqpException
+     */
+    private function constructReceivableMessage ($closure) : ConsumableMessage {
+        if (is_callable($closure)) {
+            return new GenericConsumableMessage($closure);
+        } elseif ($closure instanceof ConsumableMessage) {
+            return $closure;
+        } else {
+            throw new AmqpException('Handler can be typeof Closure or Anik\Amqp\ConsumableMessage');
+        }
+    }
+
     public function publish ($message, $routingKey, array $config = []) {
         /**
          * Connection and channels are not closed on purpose
@@ -140,5 +157,56 @@ class AmqpManager
         /* @var \Anik\Amqp\Publisher $publisher */
         $publisher = app(Publisher::class);
         $publisher->setChannel($channel)->publishBulk($passableMessages, $routingKey);
+    }
+
+    public function consume ($closure, $bindingKey, array $config = []) {
+        $name = $this->resolveConnectionName($config['connection'] ?? null);
+        $connection = $this->getConnection($name);
+        $channelId = $this->guessChannelId($config['channel_id'] ?? null, $name);
+        $channel = $this->acquireChannel($name, $connection, $channelId);
+
+        /* No exception raised, configuration available */
+        $defaultConfig = $this->getConfig($name);
+
+        // dynamic value > class value > default values
+
+        $mergedExchangeConfig = array_merge($defaultConfig['exchange'] ?? [], $config['exchange'] ?? []);
+
+        $mergedQueueConfig = array_merge($defaultConfig['queue'] ?? [], $config['queue'] ?? []);
+
+        $mergedQosConfig = array_merge($defaultConfig['qos'] ?? [], $config['qos'] ?? []);
+
+        $mergedConsumerConfig = array_merge($defaultConfig['consumer'] ?? [], $config['consumer'] ?? []);
+
+        $handler = $this->constructReceivableMessage($closure);
+
+        if ($ex = $handler->getExchange()) {
+            $handler->setExchange($ex->mergeProperties($mergedExchangeConfig));
+        } else {
+            $handler->setExchange(new Exchange($mergedExchangeConfig['name'] ?? '', $mergedExchangeConfig));
+        }
+
+        if ($q = $handler->getQueue()) {
+            $handler->setQueue($q->mergeProperties($mergedQueueConfig));
+        } else {
+            $handler->setQueue(new Queue($mergedQueueConfig['name'] ?? '', $mergedQueueConfig));
+        }
+
+        if ($cons = $handler->getConsumer()) {
+            $handler->setConsumer($cons->mergeProperties($mergedConsumerConfig));
+        } else {
+            $handler->setConsumer(new AmqpConsumer($mergedConsumerConfig));
+        }
+
+        /* QoS is not attached to any exchange, queue */
+        if (isset($mergedQosConfig['enabled']) && $mergedQosConfig['enabled']) {
+            $channel->basic_qos($mergedQosConfig['qos_prefetch_size'], $mergedQosConfig['qos_prefetch_count'], $mergedQosConfig['qos_a_global']);
+        }
+
+        /* @var \Anik\Amqp\Consumer $consumer */
+        $consumer = app(Consumer::class);
+        $consumer->setChannel($channel)->consume($handler, $bindingKey);
+
+        dd($mergedExchangeConfig, $mergedQueueConfig, $mergedQosConfig);
     }
 }

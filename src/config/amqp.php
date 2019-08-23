@@ -57,8 +57,8 @@ return [
                 'no_ack'     => env('AMQP_CONSUMER_NO_ACK', false),
                 'exclusive'  => env('AMQP_CONSUMER_EXCLUSIVE', false),
                 'nowait'     => env('AMQP_CONSUMER_NOWAIT', false),
-                'timeout'    => env('AMQP_CONSUMER_TIMEOUT', 0),
-                'persistent' => env('AMQP_CONSUMER_PERSISTENT', false),
+                'ticket'     => null,
+                'properties' => [],
             ],
 
             'qos' => [
