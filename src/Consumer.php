@@ -3,7 +3,6 @@
 namespace Anik\Amqp;
 
 use Anik\Amqp\Exceptions\AmqpException;
-use Closure;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;

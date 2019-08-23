@@ -3,7 +3,6 @@
 namespace Anik\Amqp;
 
 use Anik\Amqp\Exceptions\AmqpException;
-use Closure;
 use Illuminate\Container\Container;
 use InvalidArgumentException;
 use PhpAmqpLib\Connection\AbstractConnection;
