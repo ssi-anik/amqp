@@ -67,14 +67,15 @@ class Consumer
             if (empty($handler->getQueue()->getName()) && (!isset($qp['nowait']) || true == $qp['nowait'])) {
                 $qp['nowait'] = false;
             }
+
             $r = $channel->queue_declare($handler->getQueue()
-                                                 ->getName(), $qp['passive'] ?? false, $qp['durable'] ?? true, $qp['exclusive'] ?? true, $qp['auto_delete'] ?? false, $qp['nowait'] ?? false, new AMQPTable($qp['properties'] ?? []));
+                                                 ->getName(), $qp['passive'] ?? false, $qp['durable'] ?? true, $qp['exclusive'] ?? true, $qp['auto_delete'] ?? false, $qp['nowait'] ?? false, new AMQPTable($qp['d_properties'] ?? []));
             $this->queueInfo = $r ?: [];
         }
 
         // No queue can be bound to the default exchange.
         if ($handler->getExchange()->getName()) {
-            $channel->queue_bind($handler->getQueue()->getName(), $handler->getExchange()->getName(), $bindingKey, $qp['nowait'] ?? false, new AMQPTable($qp['properties'] ?? []));
+            $channel->queue_bind($handler->getQueue()->getName(), $handler->getExchange()->getName(), $bindingKey, $qp['nowait'] ?? false, new AMQPTable($qp['b_properties'] ?? []));
         }
 
         /* Consumer properties */

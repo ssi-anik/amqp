@@ -191,7 +191,14 @@ class AmqpManager
             ]);
         }
         /* dynamic value > class value > default values */
-        $mergedQueueConfig = array_merge($defaultConfig['queue'] ?? [], $qClassProp, $config['queue'] ?? []);
+        /* Merge b_property & d_property separately before */
+        $b_properties = array_merge($defaultConfig['queue']['b_properties'] ?? [], $qClassProp['b_properties'] ?? [], $config['queue']['b_properties'] ?? []);
+        $d_properties = array_merge($defaultConfig['queue']['d_properties'] ?? [], $qClassProp['d_properties'] ?? [], $config['queue']['d_properties'] ?? []);
+        /* Now merge the bind and declare properties with the existing values */
+        $mergedQueueConfig = array_merge($defaultConfig['queue'] ?? [], $qClassProp, $config['queue'] ?? [], [
+            'd_properties' => $d_properties,
+            'b_properties' => $b_properties,
+        ]);
         $handler->setQueue(new Queue($mergedQueueConfig['name'] ?? '', $mergedQueueConfig));
 
         $conClassProp = [];

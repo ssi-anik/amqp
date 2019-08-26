@@ -42,13 +42,14 @@ return [
             ],
 
             'queue' => [
-                'declare'     => env('AMQP_QUEUE_DECLARE', false),
-                'passive'     => env('AMQP_QUEUE_PASSIVE', false),
-                'durable'     => env('AMQP_QUEUE_DURABLE', true),
-                'exclusive'   => env('AMQP_QUEUE_EXCLUSIVE', false),
-                'auto_delete' => env('AMQP_QUEUE_AUTO_DEL', false),
-                'nowait'      => env('AMQP_QUEUE_NOWAIT', false),
-                'properties'  => [],
+                'declare'      => env('AMQP_QUEUE_DECLARE', false),
+                'passive'      => env('AMQP_QUEUE_PASSIVE', false),
+                'durable'      => env('AMQP_QUEUE_DURABLE', true),
+                'exclusive'    => env('AMQP_QUEUE_EXCLUSIVE', false),
+                'auto_delete'  => env('AMQP_QUEUE_AUTO_DEL', false),
+                'nowait'       => env('AMQP_QUEUE_NOWAIT', false),
+                'd_properties' => [], // queue_declare properties/arguments
+                'b_properties' => [], // queue_bind properties/arguments
             ],
 
             'consumer' => [
