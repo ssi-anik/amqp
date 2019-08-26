@@ -140,4 +140,12 @@ abstract class ConsumableMessage
 
         return $this;
     }
+
+    public function getMessageApplicationHeaders () : array {
+        return ($amqp = $this->getAmqpMessage()) ? $amqp->get_properties()['application_headers']->getNativeData() : [];
+    }
+
+    public function getMessageApplicationHeader ($key, $default = null) {
+        return array_key_exists($key, ($headers = $this->getMessageApplicationHeaders())) ? $headers[$key] : $default;
+    }
 }
