@@ -148,4 +148,8 @@ abstract class ConsumableMessage
     public function getMessageApplicationHeader ($key, $default = null) {
         return array_key_exists($key, ($headers = $this->getMessageApplicationHeaders())) ? $headers[$key] : $default;
     }
+
+    public function isRedelivered () : bool {
+        return ($delivery = $this->getDeliveryInfo()) && ($info = $delivery->getProperties()) ? (bool) ($info['delivery_info']['redelivered'] ?? false) : false;
+    }
 }

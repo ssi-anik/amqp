@@ -2,6 +2,8 @@
 
 namespace Anik\Amqp;
 
+use Anik\Amqp\Exceptions\AmqpException;
+
 class Delivery
 {
     private $properties;
@@ -33,6 +35,11 @@ class Delivery
      */
     public function acknowledge () {
         $props = $this->getProperties();
+
+        if (!isset($props['delivery_info']['channel'])) {
+            throw new AmqpException('Delivery info or channel is not set');
+        }
+
         $props['delivery_info']['channel']->basic_ack($props['delivery_info']['delivery_tag']);
 
         if ($props['body'] === 'quit') {
@@ -44,9 +51,16 @@ class Delivery
      * Rejects message w/ requeue
      *
      * @param bool $requeue
+     *
+     * @throws \Anik\Amqp\Exceptions\AmqpException
      */
     public function reject ($requeue = false) {
         $props = $this->getProperties();
+
+        if (!isset($props['delivery_info']['channel'])) {
+            throw new AmqpException('Delivery info or channel is not set');
+        }
+
         $props['delivery_info']['channel']->basic_reject($props['delivery_info']['delivery_tag'], $requeue);
     }
 }
