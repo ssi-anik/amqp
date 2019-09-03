@@ -9,7 +9,7 @@ You can use this package with
 
 ## Requirements
 This package requires the following
-- PHP >= 7.0
+- php >= 7.0
 - ext-bcmath
 - ext-sockets
 
