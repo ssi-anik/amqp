@@ -81,24 +81,26 @@ class AmqpManager
 
     /**
      * @param string|\Anik\Amqp\PublishableMessage $message
-     * @param array                                $config
+     * @param array                                $default
+     * @param array                                $dynamic
      *
      * @return \Anik\Amqp\PublishableMessage
      *
      * @throws \Anik\Amqp\Exceptions\AmqpException
      */
-    private function constructMessage ($message, array $config = []) : PublishableMessage {
+    private function constructMessage ($message, array $default = [], array $dynamic = []) : PublishableMessage {
         $publishable = $message;
+        $properties = [];
         if (is_string($message)) {
             $publishable = new PublishableMessage($message);
         } elseif ($message instanceof PublishableMessage) {
-            $config = array_merge($message->getProperties(), $config);
+            $properties = array_merge($default, $message->getProperties(), $dynamic);
         } else {
             throw new AmqpException('Message can be typeof string or Anik\Amqp\PublishableMessage.');
         }
 
-        if (count($config)) {
-            $publishable->setProperties($config);
+        if (count($properties)) {
+            $publishable->setProperties($properties);
         }
 
         return $publishable;
@@ -139,7 +141,7 @@ class AmqpManager
 
         $passableMessages = [];
         foreach ( (!is_array($message) ? [ $message ] : $message) as $msg ) {
-            $pMsg = $this->constructMessage($msg, array_merge($messageDefault, $config['message'] ?? []));
+            $pMsg = $this->constructMessage($msg, $messageDefault, $config['message'] ?? []);
 
             /* Merge exchange properties */
             $classExProp = [];

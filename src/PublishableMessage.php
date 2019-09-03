@@ -28,7 +28,7 @@ class PublishableMessage
      * @return \PhpAmqpLib\Message\AMQPMessage
      */
     public function getAmqpMessage () : AMQPMessage {
-        return new AMQPMessage($this->stream, $this->properties);
+        return new AMQPMessage($this->stream, $this->properties ?: []);
     }
 
     /**
