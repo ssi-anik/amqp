@@ -1,6 +1,6 @@
 {
     "name": "anik/amqp",
-    "description": "php-amqplib wrapper that eases the consumption of rabbitmq painlessly",
+    "description": "php-amqplib wrapper that eases the consumption of RabbitMQ. A painless way of using RabbitMQ",
     "type": "library",
     "license": "MIT",
     "authors": [
