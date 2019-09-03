@@ -71,7 +71,7 @@ class AmqpManager
         return $this->connect($config['connection']);
     }
 
-    private function connect (array $config) : AbstractConnection {
+    protected function connect (array $config) : AbstractConnection {
         return new AMQPSSLConnection($config['host'], $config['port'], $config['username'], $config['password'], $config['vhost'], $config['ssl_options'] ?? [], $config['connect_options'] ?? [], $config['ssl_protocol'] ?? 'ssl');
     }
 
@@ -88,7 +88,7 @@ class AmqpManager
      *
      * @throws \Anik\Amqp\Exceptions\AmqpException
      */
-    private function constructMessage ($message, array $default = [], array $dynamic = []) : PublishableMessage {
+    protected function constructMessage ($message, array $default = [], array $dynamic = []) : PublishableMessage {
         $publishable = $message;
         $properties = [];
         if (is_string($message)) {
@@ -112,7 +112,7 @@ class AmqpManager
      * @return \Anik\Amqp\ConsumableMessage
      * @throws \Anik\Amqp\Exceptions\AmqpException
      */
-    private function constructReceivableMessage ($closure) : ConsumableMessage {
+    protected function constructReceivableMessage ($closure) : ConsumableMessage {
         if (is_callable($closure)) {
             return new GenericConsumableMessage($closure);
         } elseif ($closure instanceof ConsumableMessage) {
