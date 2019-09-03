@@ -14,21 +14,21 @@ This package requires the following
 - ext-sockets
 
 ## Installation
-Primarily the package works with Laravel, Lumen & Laravel zero. Install it via composer. 
+The package works with Laravel, Lumen & Laravel zero. Install it via composer. 
 
 `composer require anik/amqp`
 
 ### For Laravel 
-- Add provider in your `config/app.php` - providers array.
+- Add provider in your `config/app.php` providers array.
 ```php
-$providers = [
+'providers' => [
     /// ... 
     Anik\Amqp\ServiceProviders\AmqpServiceProvider::class,
-];
+]
 ```
 - Add configuration file `amqp.php` in your config directory with the following command.
 ```php
-php artisan vendor:publish -- provider=Anik\Amqp\ServiceProviders\AmqpServiceProvider
+php artisan vendor:publish --provider=Anik\Amqp\ServiceProviders\AmqpServiceProvider
 ```
 ### For Lumen
 - Add the service provider in your `bootstrap/app.php` file.
@@ -37,14 +37,14 @@ $app->register(Anik\Amqp\ServiceProviders\AmqpServiceProvider::class);
 ```
 - Add configuration `amqp.php` in your config directory by copying it from `vendor/anik/amqp/src/config/amqp.php`.
 
-**N.B: For Lumen, you don't need to enable Facade.**
+N.B: **For Lumen, you don't need to enable Facade.**
 
 ### For Laravel Zero
-- Add provider in your `config/app.php` - providers array.
+- Add provider in your `config/app.php` providers array.
 ```php
-$providers = [
+'providers' => [
     /// ... 
     Anik\Amqp\ServiceProviders\AmqpServiceProvider::class,
-];
+]
 ```
 - Add configuration `amqp.php` in your config directory by copying it from `vendor/anik/amqp/src/config/amqp.php`.
