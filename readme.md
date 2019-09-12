@@ -19,7 +19,8 @@ The package works with Laravel, Lumen & Laravel zero. Install it via composer.
 > `composer require anik/amqp`
 
 ### For Laravel 
-- Add provider in your `config/app.php` providers array.
+The service provider will automatically get registered. Or you may manually add the service provider in your `config/app.php` providers array:
+
 ```php
 'providers' => [
     /// ... 
