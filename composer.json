@@ -13,9 +13,9 @@
     "require": {
         "php": ">=7.0",
         "php-amqplib/php-amqplib": "^2.9",
-        "illuminate/container": "^5.8",
-        "illuminate/pipeline": "^5.8",
-        "illuminate/support": "^5.8",
+        "illuminate/container": "^5.8|^6.0",
+        "illuminate/pipeline": "^5.8|^6.0",
+        "illuminate/support": "^5.8|^6.0",
         "laravel/helpers": "^1.1"
     },
     "require-dev": {},
