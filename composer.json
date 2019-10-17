@@ -22,7 +22,10 @@
     "autoload": {
         "psr-4": {
             "Anik\\Amqp\\": "src/"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "extra": {
         "laravel": {
