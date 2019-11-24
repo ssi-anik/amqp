@@ -36,7 +36,7 @@ php artisan vendor:publish --provider=Anik\Amqp\ServiceProviders\AmqpServiceProv
 ```php
 $app->register(Anik\Amqp\ServiceProviders\AmqpServiceProvider::class);
 ```
-- Add configuration `amqp.php` in your config directory by copying it from `vendor/anik/amqp/src/config/amqp.php`. Don't forget to add `$app->configure(‘amqp’);` to your `bootstrap/app.php`.
+- Add configuration `amqp.php` in your config directory by copying it from `vendor/anik/amqp/src/config/amqp.php`. Don't forget to add `$app->configure('amqp');` to your `bootstrap/app.php`.
 
 N.B: **For Lumen, you don't need to enable Facade.**
 
