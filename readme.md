@@ -29,7 +29,7 @@ The service provider will automatically get registered. Or you may manually add 
 ```
 - Add configuration file `amqp.php` in your config directory with the following command.
 ```php
-php artisan vendor:publish --provider=Anik\Amqp\ServiceProviders\AmqpServiceProvider
+php artisan vendor:publish --provider="Anik\Amqp\ServiceProviders\AmqpServiceProvider"
 ```
 ### For Lumen
 - Add the service provider in your `bootstrap/app.php` file.
