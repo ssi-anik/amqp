@@ -50,6 +50,10 @@ N.B: **For Lumen, you don't need to enable Facade.**
 ```
 - Add configuration `amqp.php` in your config directory by copying it from `vendor/anik/amqp/src/config/amqp.php`.
 
+### SSL
+
+By default this package attempts to connect using SSL. If your server does not support this you can set `AMQP_SSL_PROTOCOL` to `null`
+
 ## Usage
 - To Publish a message 
 ```php

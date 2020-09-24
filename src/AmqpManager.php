@@ -72,7 +72,7 @@ class AmqpManager
     }
 
     protected function connect (array $config) : AbstractConnection {
-        return new AMQPSSLConnection($config['host'], $config['port'], $config['username'], $config['password'], $config['vhost'], $config['ssl_options'] ?? [], $config['connect_options'] ?? [], $config['ssl_protocol'] ?? 'ssl');
+        return new AMQPSSLConnection($config['host'], $config['port'], $config['username'], $config['password'], $config['vhost'], $config['ssl_options'] ?? [], $config['connect_options'] ?? [], array_key_exists('ssl_protocol', $config) ? $config['ssl_protocol'] : 'ssl');
     }
 
     protected function acquireChannel ($name, AbstractConnection $connection, $channelId) {
