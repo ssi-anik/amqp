@@ -10,7 +10,7 @@ use Anik\Amqp\Publisher;
 $host = '127.0.0.1';
 $port = 5672;
 $username = 'user';
-$password = 'bitnami';
+$password = 'password';
 
 $connection = new Connection($host, $port, $username, $password);
 // $exchange = Exchange::make(['name' => 'example.direct', 'type' => 'direct', 'declare' => true]);
