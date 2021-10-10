@@ -38,17 +38,44 @@ class Exchange
             throw new AmqpException('Exchange type is required.');
         }
 
-        $exchange = new static($options['name'], $options['type']);
-        ($options['declare'] ?? false) ? $exchange->setDeclare((bool)$options['declare']) : null;
-        ($options['passive'] ?? false) ? $exchange->setPassive((bool)$options['passive']) : null;
-        ($options['durable'] ?? false) ? $exchange->setDurable((bool)$options['durable']) : null;
-        ($options['auto_delete'] ?? false) ? $exchange->setAutoDelete((bool)$options['auto_delete']) : null;
-        ($options['internal'] ?? false) ? $exchange->setInternal((bool)$options['internal']) : null;
-        ($options['no_wait'] ?? false) ? $exchange->setNoWait((bool)$options['no_wait']) : null;
-        ($options['arguments'] ?? false) ? $exchange->setArguments((array)$options['arguments']) : null;
-        ($options['ticket'] ?? false) ? $exchange->setTicket($options['ticket']) : null;
+        return (new static($options['name'], $options['type']))->applyOptions($options);
+    }
 
-        return $exchange;
+    public function applyOptions(array $options): self
+    {
+        if ($options['declare'] ?? false) {
+            $this->setDeclare((bool)$options['declare']);
+        }
+
+        if ($options['passive'] ?? false) {
+            $this->setPassive((bool)$options['passive']);
+        }
+
+        if ($options['durable'] ?? false) {
+            $this->setDurable((bool)$options['durable']);
+        }
+
+        if ($options['auto_delete'] ?? false) {
+            $this->setAutoDelete((bool)$options['auto_delete']);
+        }
+
+        if ($options['internal'] ?? false) {
+            $this->setInternal((bool)$options['internal']);
+        }
+
+        if ($options['no_wait'] ?? false) {
+            $this->setNoWait((bool)$options['no_wait']);
+        }
+
+        if ($options['arguments'] ?? false) {
+            $this->setArguments((array)$options['arguments']);
+        }
+
+        if ($options['ticket'] ?? false) {
+            $this->setTicket($options['ticket']);
+        }
+
+        return $this;
     }
 
     public function getName(): string
