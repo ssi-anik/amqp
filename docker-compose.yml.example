@@ -3,7 +3,7 @@ version: '3.8'
 services:
     php:
         build:
-            dockerfile: docker/Dockerfile
+            dockerfile: docker/php.dockerfile
             context: .
         volumes:
             - .:/app
@@ -11,7 +11,9 @@ services:
             - rabbitmq
 
     rabbitmq:
-        image: bitnami/rabbitmq:3.7
+        build:
+            dockerfile: docker/rabbitmq.dockerfile
+            context: .
         ports:
             - 5672:5672
             - 15672:15672
