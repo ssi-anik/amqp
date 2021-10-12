@@ -2,7 +2,7 @@
 
 namespace Anik\Amqp\Exchanges;
 
-class Header extends Exchange
+class Headers extends Exchange
 {
     public function __construct(string $name)
     {
