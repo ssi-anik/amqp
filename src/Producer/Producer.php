@@ -1,12 +1,12 @@
 <?php
 
-namespace Anik\Amqp\Publisher;
+namespace Anik\Amqp\Producer;
 
 use Anik\Amqp\Connection\Connection;
 use Anik\Amqp\Exceptions\AmqpException;
 use Anik\Amqp\Exchanges\Exchange;
 
-class Publisher
+class Producer
 {
     public function publish(
         Connection $connection,
