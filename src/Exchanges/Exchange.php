@@ -38,10 +38,10 @@ class Exchange
             throw new AmqpException('Exchange type is required.');
         }
 
-        return (new static($options['name'], $options['type']))->applyOptions($options);
+        return (new static($options['name'], $options['type']))->reconfigure($options);
     }
 
-    public function applyOptions(array $options): self
+    public function reconfigure(array $options): self
     {
         if ($options['declare'] ?? false) {
             $this->setDeclare((bool)$options['declare']);
