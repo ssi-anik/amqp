@@ -39,6 +39,9 @@ class AmqpManagerFake {
     }
 
     public static function register() {
+        self::$messagesToConsume = new SplQueue();
+        self::$publishedMessages = [];
+        self::$consumedMessages = [];
         app()->extend('amqp', function ($command, $app) {
             return new AmqpManagerFake($app);
         });
