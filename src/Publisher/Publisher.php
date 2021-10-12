@@ -2,7 +2,7 @@
 
 namespace Anik\Amqp\Publisher;
 
-use Anik\Amqp\Connection;
+use Anik\Amqp\Connection\Connection;
 use Anik\Amqp\Exceptions\AmqpException;
 use Anik\Amqp\Exchanges\Exchange;
 

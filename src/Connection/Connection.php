@@ -1,6 +1,6 @@
 <?php
 
-namespace Anik\Amqp;
+namespace Anik\Amqp\Connection;
 
 use PhpAmqpLib\Channel\AbstractChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
