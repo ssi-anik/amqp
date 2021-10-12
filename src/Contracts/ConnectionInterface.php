@@ -2,12 +2,12 @@
 
 namespace Anik\Amqp\Contracts;
 
-use PhpAmqpLib\Channel\AbstractChannel;
+use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
 
 interface ConnectionInterface
 {
     public function getConnection(): AbstractConnection;
 
-    public function getChannel(): AbstractChannel;
+    public function getChannel(): AMQPChannel;
 }
