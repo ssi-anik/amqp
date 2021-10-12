@@ -2,35 +2,21 @@
 
 namespace Anik\Amqp\Producer;
 
-use Anik\Amqp\Connection\Connection;
+use Anik\Amqp\Contracts\ConnectionInterface;
+use Anik\Amqp\Contracts\ProducerMessageInterface;
 use Anik\Amqp\Exceptions\AmqpException;
 use Anik\Amqp\Exchanges\Exchange;
+use PhpAmqpLib\Channel\AbstractChannel;
 
 class Producer
 {
-    public function publish(
-        Connection $connection,
+    final protected function prepareBeforePublish(
+        ConnectionInterface $connection,
         Exchange $exchange,
-        Message $message,
-        string $routingKey = '',
         array $options = []
-    ): bool {
-        return $this->publishBulk($connection, $exchange, [$message], $routingKey, $options);
-    }
-
-    public function publishBulk(
-        Connection $connection,
-        Exchange $exchange,
-        array $messages,
-        string $routingKey = '',
-        array $options = []
-    ): bool {
+    ): AbstractChannel {
         $channelId = $options['channel_id'] ?? null;
         $channel = $connection->getChannel($channelId);
-
-        if (count($messages) === 0) {
-            return false;
-        }
 
         if (isset($options['exchange']) && is_array($options['exchange'])) {
             $exchange->reconfigure($options['exchange']);
@@ -50,14 +36,52 @@ class Producer
             );
         }
 
-        $max = 200;
+        return $channel;
+    }
 
+    public function publish(
+        ConnectionInterface $connection,
+        Exchange $exchange,
+        ProducerMessageInterface $message,
+        string $routingKey = '',
+        array $options = []
+    ): bool {
+        return $this->publishBulk($connection, $exchange, [$message], $routingKey, $options);
+    }
+
+    public function publishBulk(
+        ConnectionInterface $connection,
+        Exchange $exchange,
+        array $messages,
+        string $routingKey = '',
+        array $options = []
+    ): bool {
+        if (count($messages) === 0) {
+            return false;
+        }
+
+        $channel = $this->prepareBeforePublish($connection, $exchange);
+
+        $max = 200;
         foreach ($messages as $message) {
-            if (!$message instanceof Message) {
-                throw new AmqpException('Message must be an instance of Anik\Amqp\Publisher\Message');
+            if (!$message instanceof ProducerMessageInterface) {
+                throw new AmqpException(
+                    'Message must be an implementation of Anik\Amqp\Contracts\ProducerMessageInterface'
+                );
             }
 
-            $channel->batch_basic_publish($message->prepare(), $exchange->getName(), $routingKey);
+            $mandatory = $options['mandatory'] ?? false;
+            $immediate = $options['immediate'] ?? false;
+            $ticket = $options['ticket'] ?? null;
+
+            $channel->batch_basic_publish(
+                $message->prepare(),
+                $exchange->getName(),
+                $routingKey,
+                $mandatory,
+                $immediate,
+                $ticket
+            );
 
             --$max <= 0 ? $max = 200 && $channel->publish_batch() : null;
         }
