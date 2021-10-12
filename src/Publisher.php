@@ -31,11 +31,15 @@ class Publisher
             return false;
         }
 
+        if (isset($options['exchange']) && is_array($options['exchange'])) {
+            $exchange->reconfigure($options['exchange']);
+        }
+
         if ($exchange->shouldDeclare()) {
             $channel->exchange_declare(
                 $exchange->getName(),
                 $exchange->getType(),
-                $exchange->getPassive(),
+                $exchange->isPassive(),
                 $exchange->isDurable(),
                 $exchange->isAutoDelete(),
                 $exchange->isInternal(),
