@@ -2,11 +2,12 @@
 
 namespace Anik\Amqp\Connection;
 
+use Anik\Amqp\Contracts\ConnectionInterface;
 use PhpAmqpLib\Channel\AbstractChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Connection\AMQPLazySSLConnection;
 
-class Connection
+class Connection implements ConnectionInterface
 {
     private $host;
     private $port;
