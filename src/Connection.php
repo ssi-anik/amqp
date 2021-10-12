@@ -2,7 +2,8 @@
 
 namespace Anik\Amqp;
 
-use PhpAmqpLib\Channel\AMQPChannel;
+use PhpAmqpLib\Channel\AbstractChannel;
+use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Connection\AMQPLazySSLConnection;
 
 class Connection
@@ -39,12 +40,12 @@ class Connection
         $this->sslProtocol = $sslProtocol;
     }
 
-    public function getConnection(): AMQPLazySSLConnection
+    public function getConnection(): AbstractConnection
     {
         return $this->connection ?? ($this->connection = $this->getAmqpConnection());
     }
 
-    public function getChannel(?int $channelId = null): AMQPChannel
+    public function getChannel(?int $channelId = null): AbstractChannel
     {
         if (!is_null($channelId) && isset($this->channels[$channelId])) {
             return $this->channels[$channelId];
@@ -55,7 +56,7 @@ class Connection
         return $this->channels[$channel->getChannelId()] = $channel;
     }
 
-    private function getAmqpConnection(): AMQPLazySSLConnection
+    public function getAmqpConnection(): AbstractConnection
     {
         return new AMQPLazySSLConnection(
             $this->host,
