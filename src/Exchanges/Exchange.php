@@ -43,35 +43,35 @@ class Exchange
 
     public function reconfigure(array $options): self
     {
-        if ($options['declare'] ?? false) {
+        if (isset($options['declare'])) {
             $this->setDeclare((bool)$options['declare']);
         }
 
-        if ($options['passive'] ?? false) {
+        if (isset($options['passive'])) {
             $this->setPassive((bool)$options['passive']);
         }
 
-        if ($options['durable'] ?? false) {
+        if (isset($options['durable'])) {
             $this->setDurable((bool)$options['durable']);
         }
 
-        if ($options['auto_delete'] ?? false) {
+        if (isset($options['auto_delete'])) {
             $this->setAutoDelete((bool)$options['auto_delete']);
         }
 
-        if ($options['internal'] ?? false) {
+        if (isset($options['internal'])) {
             $this->setInternal((bool)$options['internal']);
         }
 
-        if ($options['no_wait'] ?? false) {
+        if (isset($options['no_wait'])) {
             $this->setNoWait((bool)$options['no_wait']);
         }
 
-        if ($options['arguments'] ?? false) {
+        if (isset($options['arguments'])) {
             $this->setArguments((array)$options['arguments']);
         }
 
-        if ($options['ticket'] ?? false) {
+        if (isset($options['ticket'])) {
             $this->setTicket($options['ticket']);
         }
 
@@ -114,7 +114,7 @@ class Exchange
         return $this;
     }
 
-    public function getPassive(): bool
+    public function isPassive(): bool
     {
         return $this->passive;
     }
