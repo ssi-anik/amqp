@@ -6,7 +6,7 @@ use Anik\Amqp\Contracts\ConnectionInterface;
 use Anik\Amqp\Contracts\ProducerMessageInterface;
 use Anik\Amqp\Exceptions\AmqpException;
 use Anik\Amqp\Exchanges\Exchange;
-use PhpAmqpLib\Channel\AbstractChannel;
+use PhpAmqpLib\Channel\AMQPChannel;
 
 class Producer
 {
@@ -14,7 +14,7 @@ class Producer
         ConnectionInterface $connection,
         Exchange $exchange,
         array $options = []
-    ): AbstractChannel {
+    ): AMQPChannel {
         $channelId = $options['channel_id'] ?? null;
         $channel = $connection->getChannel($channelId);
 
@@ -87,6 +87,31 @@ class Producer
         }
 
         $channel->publish_batch();
+
+        return true;
+    }
+
+    public function publishBasic(
+        ConnectionInterface $connection,
+        Exchange $exchange,
+        ProducerMessageInterface $message,
+        string $routingKey = '',
+        array $options = []
+    ): bool {
+        $channel = $this->prepareBeforePublish($connection, $exchange);
+
+        $mandatory = $options['mandatory'] ?? false;
+        $immediate = $options['immediate'] ?? false;
+        $ticket = $options['ticket'] ?? null;
+
+        $channel->basic_publish(
+            $message->prepare(),
+            $exchange->getName(),
+            $routingKey,
+            $mandatory,
+            $immediate,
+            $ticket
+        );
 
         return true;
     }
