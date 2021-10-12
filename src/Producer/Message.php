@@ -2,9 +2,10 @@
 
 namespace Anik\Amqp\Producer;
 
+use Anik\Amqp\Contracts\ProducerMessageInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 
-class Message
+class Message implements ProducerMessageInterface
 {
     private $message;
     private $properties = [];
