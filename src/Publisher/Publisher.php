@@ -1,9 +1,10 @@
 <?php
 
-namespace Anik\Amqp;
+namespace Anik\Amqp\Publisher;
 
+use Anik\Amqp\Connection;
+use Anik\Amqp\Exceptions\AmqpException;
 use Anik\Amqp\Exchanges\Exchange;
-use Anik\Amqp\Messages\Publish\Message;
 
 class Publisher
 {
@@ -51,8 +52,11 @@ class Publisher
 
         $max = 200;
 
-        /** @var Message $message */
         foreach ($messages as $message) {
+            if (!$message instanceof Message) {
+                throw new AmqpException('Message must be an instance of Anik\Amqp\Publisher\Message');
+            }
+
             $channel->batch_basic_publish($message->prepare(), $exchange->getName(), $routingKey);
 
             --$max <= 0 ? $max = 200 && $channel->publish_batch() : null;

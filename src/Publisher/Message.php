@@ -1,6 +1,6 @@
 <?php
 
-namespace Anik\Amqp\Messages\Publish;
+namespace Anik\Amqp\Publisher;
 
 use PhpAmqpLib\Message\AMQPMessage;
 
