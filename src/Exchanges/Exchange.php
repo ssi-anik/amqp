@@ -186,12 +186,12 @@ class Exchange
         return $this;
     }
 
-    public function getTicket()
+    public function getTicket(): ?int
     {
         return $this->ticket;
     }
 
-    public function setTicket($ticket): self
+    public function setTicket(?int $ticket): self
     {
         $this->ticket = $ticket;
 
