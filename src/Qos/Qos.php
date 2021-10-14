@@ -8,19 +8,19 @@ class Qos
     private $prefetchCount;
     private $global;
 
-    public function __construct(int $prefetchSize, int $prefetchCount, bool $global)
+    public function __construct(?int $prefetchSize = 0, int $prefetchCount = 0, ?bool $global = false)
     {
         $this->prefetchSize = $prefetchSize;
         $this->prefetchCount = $prefetchCount;
         $this->global = $global;
     }
 
-    public function getPrefetchCount(): int
+    public function getPrefetchCount(): ?int
     {
         return $this->prefetchCount;
     }
 
-    public function isGlobal(): bool
+    public function isGlobal(): ?bool
     {
         return $this->global;
     }
