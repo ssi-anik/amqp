@@ -2,6 +2,7 @@
 
 namespace Anik\Amqp\Exchanges;
 
+use Anik\Amqp\Contracts\ChannelInterface;
 use Anik\Amqp\Exceptions\AmqpException;
 
 class Exchange
@@ -196,5 +197,20 @@ class Exchange
         $this->ticket = $ticket;
 
         return $this;
+    }
+
+    public function declare(ChannelInterface $channel)
+    {
+        $channel->declareExchange(
+            $this->getName(),
+            $this->getType(),
+            $this->isPassive(),
+            $this->isDurable(),
+            $this->isAutoDelete(),
+            $this->isInternal(),
+            $this->isNoWait(),
+            $this->getArguments(),
+            $this->getTicket()
+        );
     }
 }

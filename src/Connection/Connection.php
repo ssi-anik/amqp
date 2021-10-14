@@ -2,8 +2,8 @@
 
 namespace Anik\Amqp\Connection;
 
+use Anik\Amqp\Contracts\ChannelInterface;
 use Anik\Amqp\Contracts\ConnectionInterface;
-use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Connection\AMQPLazySSLConnection;
 
@@ -46,7 +46,7 @@ class Connection implements ConnectionInterface
         return $this->connection ?? ($this->connection = $this->getAmqpConnection());
     }
 
-    public function getChannel(?int $channelId = null): AMQPChannel
+    public function getChannel(?int $channelId = null): ChannelInterface
     {
         if (!is_null($channelId) && isset($this->channels[$channelId])) {
             return $this->channels[$channelId];
@@ -54,7 +54,7 @@ class Connection implements ConnectionInterface
 
         $channel = $this->getConnection()->channel($channelId);
 
-        return $this->channels[$channel->getChannelId()] = $channel;
+        return $this->channels[$channel->getChannelId()] = new Channel($this, $channel);
     }
 
     public function getAmqpConnection(): AbstractConnection

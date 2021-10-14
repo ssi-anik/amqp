@@ -2,11 +2,11 @@
 
 namespace Anik\Amqp\Producer;
 
+use Anik\Amqp\Contracts\ChannelInterface;
 use Anik\Amqp\Contracts\ConnectionInterface;
 use Anik\Amqp\Contracts\ProducerMessageInterface;
 use Anik\Amqp\Exceptions\AmqpException;
 use Anik\Amqp\Exchanges\Exchange;
-use PhpAmqpLib\Channel\AMQPChannel;
 
 class Producer
 {
@@ -14,7 +14,7 @@ class Producer
         ConnectionInterface $connection,
         Exchange $exchange,
         array $options = []
-    ): AMQPChannel {
+    ): ChannelInterface {
         $channelId = $options['channel_id'] ?? null;
         $channel = $connection->getChannel($channelId);
 
@@ -22,19 +22,7 @@ class Producer
             $exchange->reconfigure($options['exchange']);
         }
 
-        if ($exchange->shouldDeclare()) {
-            $channel->exchange_declare(
-                $exchange->getName(),
-                $exchange->getType(),
-                $exchange->isPassive(),
-                $exchange->isDurable(),
-                $exchange->isAutoDelete(),
-                $exchange->isInternal(),
-                $exchange->isNoWait(),
-                $exchange->getArguments(),
-                $exchange->getTicket()
-            );
-        }
+        $exchange->shouldDeclare() ? $exchange->declare($channel) : null;
 
         return $channel;
     }
@@ -74,7 +62,7 @@ class Producer
             $immediate = $options['immediate'] ?? false;
             $ticket = $options['ticket'] ?? null;
 
-            $channel->batch_basic_publish(
+            $channel->batchBasicPublish(
                 $message->prepare(),
                 $exchange->getName(),
                 $routingKey,
@@ -104,7 +92,7 @@ class Producer
         $immediate = $options['immediate'] ?? false;
         $ticket = $options['ticket'] ?? null;
 
-        $channel->basic_publish(
+        $channel->basicPublish(
             $message->prepare(),
             $exchange->getName(),
             $routingKey,
