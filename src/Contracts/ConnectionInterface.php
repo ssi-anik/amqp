@@ -9,4 +9,6 @@ interface ConnectionInterface
     public function getConnection(): AbstractConnection;
 
     public function getChannel(): ChannelInterface;
+
+    public function close(): void;
 }

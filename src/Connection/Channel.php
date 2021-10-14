@@ -18,6 +18,11 @@ class Channel implements ChannelInterface
         $this->channel = $channel;
     }
 
+    public function __destruct()
+    {
+        $this->close();
+    }
+
     public function getAmqpChannel(): AMQPChannel
     {
         return $this->channel;
@@ -35,6 +40,7 @@ class Channel implements ChannelInterface
         }
 
         $this->channel->close();
+        $this->channel = null;
     }
 
     public function declareExchange($name, $type, $passive, $durable, $autoDelete, $internal, $arguments, $ticket)

@@ -18,7 +18,9 @@ class Connection implements ConnectionInterface
     private $connectOptions;
     private $sslProtocol;
 
+    /** @var AbstractConnection $connection */
     private $connection = null;
+    /** @var ChannelInterface[] $channels */
     private $channels = [];
 
     public function __construct(
@@ -39,6 +41,11 @@ class Connection implements ConnectionInterface
         $this->sslOptions = $sslOptions;
         $this->connectOptions = $connectOptions;
         $this->sslProtocol = $sslProtocol;
+    }
+
+    public function __destruct()
+    {
+        $this->close();
     }
 
     public function getConnection(): AbstractConnection
@@ -69,5 +76,20 @@ class Connection implements ConnectionInterface
             $this->connectOptions,
             $this->sslProtocol
         );
+    }
+
+    public function close(): void
+    {
+        if (!$this->connection || !$this->connection->isConnected()) {
+            return;
+        }
+
+        /** Make sure to close channels */
+        foreach ($this->channels as $channel) {
+            $channel->close();
+        }
+
+        $this->connection->close();
+        $this->connection = null;
     }
 }
