@@ -23,6 +23,56 @@ class Queue
         $this->setName($name);
     }
 
+    public static function make(array $options): Queue
+    {
+        if (!isset($options['name'])) {
+            throw new AmqpException('Exchange name is required.');
+        }
+
+        return (new static($options['name']))->reconfigure($options);
+    }
+
+    public function reconfigure(array $options): self
+    {
+        if (isset($options['declare'])) {
+            $this->setDeclare((bool)$options['declare']);
+        }
+
+        if (isset($options['passive'])) {
+            $this->setPassive((bool)$options['passive']);
+        }
+
+        if (isset($options['durable'])) {
+            $this->setDurable((bool)$options['durable']);
+        }
+
+        if (isset($options['exclusive'])) {
+            $this->setExclusive((bool)$options['exclusive']);
+        }
+
+        if (isset($options['auto_delete'])) {
+            $this->setAutoDelete((bool)$options['auto_delete']);
+        }
+
+        if (isset($options['no_wait'])) {
+            $this->setNoWait((bool)$options['no_wait']);
+        }
+
+        if (isset($options['arguments'])) {
+            $this->setArguments((array)$options['arguments']);
+        }
+
+        if (isset($options['ticket'])) {
+            $this->setTicket($options['ticket']);
+        }
+
+        if (isset($options['qos'])) {
+            $this->setQos($options['qos']);
+        }
+
+        return $this;
+    }
+
     public function setName(string $name): self
     {
         $this->name = $name;
@@ -119,12 +169,12 @@ class Queue
         return $this;
     }
 
-    public function getTicket()
+    public function getTicket(): ?int
     {
         return $this->ticket;
     }
 
-    public function setTicket($ticket): self
+    public function setTicket(?int $ticket): self
     {
         $this->ticket = $ticket;
 
@@ -141,55 +191,5 @@ class Queue
     public function getQos(): ?Qos
     {
         return $this->qos;
-    }
-
-    public static function make(array $options): Queue
-    {
-        if (!isset($options['name'])) {
-            throw new AmqpException('Exchange name is required.');
-        }
-
-        return (new static($options['name']))->applyOptions($options);
-    }
-
-    public function applyOptions(array $options): self
-    {
-        if ($options['declare'] ?? false) {
-            $this->setDeclare((bool)$options['declare']);
-        }
-
-        if ($options['passive'] ?? false) {
-            $this->setPassive((bool)$options['passive']);
-        }
-
-        if ($options['durable'] ?? false) {
-            $this->setDurable((bool)$options['durable']);
-        }
-
-        if ($options['exclusive'] ?? false) {
-            $this->setExclusive((bool)$options['exclusive']);
-        }
-
-        if ($options['auto_delete'] ?? false) {
-            $this->setAutoDelete((bool)$options['auto_delete']);
-        }
-
-        if ($options['no_wait'] ?? false) {
-            $this->setNoWait((bool)$options['no_wait']);
-        }
-
-        if ($options['arguments'] ?? false) {
-            $this->setArguments((array)$options['arguments']);
-        }
-
-        if ($options['ticket'] ?? false) {
-            $this->setTicket($options['ticket']);
-        }
-
-        if ($options['qos'] ?? false) {
-            $this->setQos($options['qos']);
-        }
-
-        return $this;
     }
 }
