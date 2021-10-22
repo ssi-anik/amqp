@@ -70,10 +70,10 @@ class Producer
                 $ticket
             );
 
-            --$max <= 0 ? $max = 200 && $channel->publish_batch() : null;
+            --$max <= 0 ? $max = 200 && $channel->publishBatch() : null;
         }
 
-        $channel->publish_batch();
+        $channel->publishBatch();
 
         return true;
     }

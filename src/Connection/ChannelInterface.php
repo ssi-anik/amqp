@@ -24,6 +24,8 @@ interface ChannelInterface
         ?int $ticket
     ): void;
 
+    public function publishBatch(): void;
+
     public function basicPublish(
         AMQPMessage $message,
         string $exchangeName,

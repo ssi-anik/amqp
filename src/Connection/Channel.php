@@ -66,6 +66,12 @@ class Channel implements ChannelInterface
         $this->channel->batch_basic_publish($message, $exchangeName, $routingKey, $mandatory, $immediate, $ticket);
     }
 
+    public function publishBatch(): void
+    {
+        $this->channel->publish_batch();
+    }
+
+
     public function basicPublish(
         AMQPMessage $message,
         string $exchangeName = '',

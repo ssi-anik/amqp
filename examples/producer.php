@@ -77,3 +77,4 @@ $message = new Message('my message');
 
 //__publishToExchanges($connection, $message);
 __publishToExchanges($connection, $message, 'publishBasic');
+__publishToExchanges($connection, $message, 'publish');
