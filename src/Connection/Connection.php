@@ -90,4 +90,18 @@ class Connection implements ConnectionInterface
         $this->connection->close();
         $this->connection = null;
     }
+
+    public static function make(array $options): Connection
+    {
+        $host = $options['host'];
+        $port = $options['port'];
+        $username = $options['username'];
+        $password = $options['password'];
+        $vhost = array_key_exists('vhost', $options) ? $options['vhost'] : '/';
+        $sslOptions = array_key_exists('ssl_options', $options) ? $options['ssl_options'] : [];
+        $connectOptions = array_key_exists('connect_options', $options) ? $options['connect_options'] : [];
+        $sslProtocol = array_key_exists('ssl_protocol', $options) ? $options['ssl_protocol'] : null;
+
+        return new static($host, $port, $username, $password, $vhost, $sslOptions, $connectOptions, $sslProtocol);
+    }
 }
