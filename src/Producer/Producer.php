@@ -2,9 +2,8 @@
 
 namespace Anik\Amqp\Producer;
 
-use Anik\Amqp\Contracts\ChannelInterface;
-use Anik\Amqp\Contracts\ConnectionInterface;
-use Anik\Amqp\Contracts\ProducerMessageInterface;
+use Anik\Amqp\Connection\ChannelInterface;
+use Anik\Amqp\Connection\ConnectionInterface;
 use Anik\Amqp\Exceptions\AmqpException;
 use Anik\Amqp\Exchanges\Exchange;
 
@@ -54,7 +53,7 @@ class Producer
         foreach ($messages as $message) {
             if (!$message instanceof ProducerMessageInterface) {
                 throw new AmqpException(
-                    'Message must be an implementation of Anik\Amqp\Contracts\ProducerMessageInterface'
+                    'Message must be an implementation of Anik\Amqp\Producer\ProducerMessageInterface'
                 );
             }
 

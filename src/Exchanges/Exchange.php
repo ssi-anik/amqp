@@ -2,7 +2,7 @@
 
 namespace Anik\Amqp\Exchanges;
 
-use Anik\Amqp\Contracts\ChannelInterface;
+use Anik\Amqp\Connection\ChannelInterface;
 use Anik\Amqp\Exceptions\AmqpException;
 
 class Exchange

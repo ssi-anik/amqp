@@ -1,6 +1,6 @@
 <?php
 
-namespace Anik\Amqp\Contracts;
+namespace Anik\Amqp\Producer;
 
 use PhpAmqpLib\Message\AMQPMessage;
 

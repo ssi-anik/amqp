@@ -1,6 +1,6 @@
 <?php
 
-namespace Anik\Amqp\Contracts;
+namespace Anik\Amqp\Connection;
 
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Message\AMQPMessage;

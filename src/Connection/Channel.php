@@ -2,8 +2,6 @@
 
 namespace Anik\Amqp\Connection;
 
-use Anik\Amqp\Contracts\ChannelInterface;
-use Anik\Amqp\Contracts\ConnectionInterface;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Message\AMQPMessage;
 
