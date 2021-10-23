@@ -11,7 +11,9 @@ class ExchangeTest extends TestCase
     public function validExchangeNameAndTypeProvider(): array
     {
         return [
-            'valid exchange name and type' => ['example.exchange', 'direct'],
+            'exchange name and type set 1' => ['example.exchange', 'direct'],
+            'exchange name and type set 2' => ['example.exchange', 'fanout'],
+            'delayed exchange name and type' => ['example.delayed-exchange', 'x-delayed-message'],
         ];
     }
 
@@ -27,7 +29,7 @@ class ExchangeTest extends TestCase
     public function reconfiguringExchangeWithArray(): array
     {
         return [
-            'all values are set to positive' => [
+            'all values are set to truthy' => [
                 [
                     'name' => 'example.exchange',
                     'type' => 'direct',
@@ -44,7 +46,7 @@ class ExchangeTest extends TestCase
                 ],
                 8,
             ],
-            'all values are set to negative' => [
+            'all values are set to falsy' => [
                 [
                     'name' => 'example.exchange',
                     'type' => 'direct',
@@ -87,9 +89,9 @@ class ExchangeTest extends TestCase
      */
     public function testCreateExchangeFromArray(string $name, string $type)
     {
-        $e = Exchange::make(['name' => 'example.exchange', 'type' => 'direct']);
-        $this->assertEquals('example.exchange', $e->getName());
-        $this->assertEquals('direct', $e->getType());
+        $e = Exchange::make(['name' => $name, 'type' => $type]);
+        $this->assertEquals($name, $e->getName());
+        $this->assertEquals($type, $e->getType());
     }
 
     /**
@@ -116,6 +118,36 @@ class ExchangeTest extends TestCase
     {
         $exchange = Exchange::make($createData);
         $exchange->reconfigure($options);
+
+        $this->assertCount(
+            $expectedCount,
+            array_filter(
+                [
+                    $exchange->shouldDeclare(),
+                    $exchange->isPassive(),
+                    $exchange->isDurable(),
+                    $exchange->isAutoDelete(),
+                    $exchange->isInternal(),
+                    $exchange->isNowait(),
+                    $exchange->getArguments(),
+                    $exchange->getTicket(),
+                ]
+            )
+        );
+    }
+
+    /**
+     * @dataProvider reconfiguringExchangeWithArray
+     *
+     * @param $createData
+     * @param $options
+     * @param $expectedCount
+     *
+     * @throws \Anik\Amqp\Exceptions\AmqpException
+     */
+    public function testExchangeIsFullyConfigurableWhenCreatingWithMakeMethod($createData, $options, $expectedCount)
+    {
+        $exchange = Exchange::make(array_merge($createData, $options));
 
         $this->assertCount(
             $expectedCount,

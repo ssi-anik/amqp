@@ -4,8 +4,9 @@ namespace Anik\Amqp\Tests\Unit\Exchange;
 
 use Anik\Amqp\Exchanges\Exchange;
 use Anik\Amqp\Exchanges\Fanout;
+use PHPUnit\Framework\TestCase;
 
-class FanoutExchangeTest extends ExchangeTest
+class FanoutExchangeTest extends TestCase
 {
     public function testFanoutExchangeInstantiation()
     {

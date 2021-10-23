@@ -4,8 +4,9 @@ namespace Anik\Amqp\Tests\Unit\Exchange;
 
 use Anik\Amqp\Exchanges\Direct;
 use Anik\Amqp\Exchanges\Exchange;
+use PHPUnit\Framework\TestCase;
 
-class DirectExchangeTest extends ExchangeTest
+class DirectExchangeTest extends TestCase
 {
     public function testDirectExchangeInstantiation()
     {

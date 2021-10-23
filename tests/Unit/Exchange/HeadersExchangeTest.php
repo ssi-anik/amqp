@@ -4,8 +4,9 @@ namespace Anik\Amqp\Tests\Unit\Exchange;
 
 use Anik\Amqp\Exchanges\Exchange;
 use Anik\Amqp\Exchanges\Headers;
+use PHPUnit\Framework\TestCase;
 
-class HeadersExchangeTest extends ExchangeTest
+class HeadersExchangeTest extends TestCase
 {
     public function testHeadersExchangeInstantiation()
     {

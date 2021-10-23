@@ -4,8 +4,9 @@ namespace Anik\Amqp\Tests\Unit\Exchange;
 
 use Anik\Amqp\Exchanges\Exchange;
 use Anik\Amqp\Exchanges\Topic;
+use PHPUnit\Framework\TestCase;
 
-class TopicExchangeTest extends ExchangeTest
+class TopicExchangeTest extends TestCase
 {
     public function testTopicExchangeInstantiation()
     {
