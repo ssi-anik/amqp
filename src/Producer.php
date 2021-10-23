@@ -38,11 +38,11 @@ class Producer extends Connection
         $exchange = $this->prepareExchange($exchange, $options);
 
         $channel = $this->getChannel();
-        $mandatory = $options['message']['mandatory'] ?? false;
-        $immediate = $options['message']['immediate'] ?? false;
-        $ticket = $options['message']['ticket'] ?? null;
+        $mandatory = $options['publish']['mandatory'] ?? false;
+        $immediate = $options['publish']['immediate'] ?? false;
+        $ticket = $options['publish']['ticket'] ?? null;
 
-        $count = (int)($options['bulk_count'] ?? 500);
+        $count = (int)($options['publish']['bulk_count'] ?? 500);
         foreach ($messages as $message) {
             if (!$message instanceof Producible) {
                 throw new AmqpException('Message must be an implementation of Anik\Amqp\Producible');
@@ -74,9 +74,9 @@ class Producer extends Connection
         $exchange = $this->prepareExchange($exchange, $options);
 
         $channel = $this->getChannel();
-        $mandatory = $options['message']['mandatory'] ?? false;
-        $immediate = $options['message']['immediate'] ?? false;
-        $ticket = $options['message']['ticket'] ?? null;
+        $mandatory = $options['publish']['mandatory'] ?? false;
+        $immediate = $options['publish']['immediate'] ?? false;
+        $ticket = $options['publish']['ticket'] ?? null;
 
         $channel->basic_publish(
             $message->build(),
