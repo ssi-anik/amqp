@@ -7,10 +7,10 @@ use Anik\Amqp\Exceptions\AmqpException;
 
 class Exchange
 {
-    const TYPE_DIRECT = 'direct';
-    const TYPE_TOPIC = 'topic';
-    const TYPE_FANOUT = 'fanout';
-    const TYPE_HEADERS = 'headers';
+    public const TYPE_DIRECT = 'direct';
+    public const TYPE_TOPIC = 'topic';
+    public const TYPE_FANOUT = 'fanout';
+    public const TYPE_HEADERS = 'headers';
 
     protected $name;
     protected $type;
