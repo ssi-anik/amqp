@@ -21,8 +21,8 @@ class Producer extends Connection
         string $routingKey = '',
         ?Exchange $exchange = null,
         array $options = []
-    ) {
-        $this->publishBulk([$message], $routingKey, $exchange, $options);
+    ): bool {
+        return $this->publishBulk([$message], $routingKey, $exchange, $options);
     }
 
     public function publishBulk(
