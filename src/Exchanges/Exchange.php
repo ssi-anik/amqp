@@ -198,19 +198,4 @@ class Exchange
 
         return $this;
     }
-
-    public function declare(ChannelInterface $channel)
-    {
-        $channel->declareExchange(
-            $this->getName(),
-            $this->getType(),
-            $this->isPassive(),
-            $this->isDurable(),
-            $this->isAutoDelete(),
-            $this->isInternal(),
-            $this->isNowait(),
-            $this->getArguments(),
-            $this->getTicket()
-        );
-    }
 }
