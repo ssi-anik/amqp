@@ -2,24 +2,22 @@
 
 require '../vendor/autoload.php';
 
-use Anik\Amqp\Connection;
-use Anik\Amqp\Consumer\Consumer;
-use Anik\Amqp\Consumer\Message;
+use Anik\Amqp\ConsumableMessage;
+use Anik\Amqp\Consumer;
 use Anik\Amqp\Exchanges\Fanout;
-use Anik\Amqp\Publisher;
 use Anik\Amqp\Queues\Queue;
+use PhpAmqpLib\Connection\AMQPLazySSLConnection;
 
 $host = '127.0.0.1';
 $port = 5672;
-$username = 'user';
+$user = 'user';
 $password = 'password';
 
-$connection = new Connection($host, $port, $username, $password);
-// $exchange = Exchange::make(['name' => 'example.direct', 'type' => 'direct', 'declare' => true]);
+$amqpConnection = new AMQPLazySSLConnection($host, $port, $user, $password);
 $exchange = (new Fanout('example.fanout'))->setDeclare(true);
 $queue = (new Queue('example.fanout.queue'))->setDeclare(true);
 $bindingKey = '';
 
-$message = new Message();
-$status = (new Consumer())->consume($connection, $exchange, $queue, $message, $bindingKey);
+$message = new ConsumableMessage();
+$status = (new Consumer($amqpConnection))->consume($message, $bindingKey, $exchange, $queue);
 var_dump($status);

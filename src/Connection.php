@@ -3,6 +3,7 @@
 namespace Anik\Amqp;
 
 use Anik\Amqp\Exchanges\Exchange;
+use Anik\Amqp\Qos\Qos;
 use Anik\Amqp\Queues\Queue;
 use Exception;
 use PhpAmqpLib\Channel\AMQPChannel;
@@ -79,6 +80,17 @@ abstract class Connection
         return $exchange;
     }
 
+    protected function makeOrReconfigureQueue(?Queue $queue, array $options): Queue
+    {
+        if (is_null($queue)) {
+            return Queue::make($options);
+        } elseif (0 < count($options)) {
+            return $queue->reconfigure($options);
+        }
+
+        return $queue;
+    }
+
     public function exchangeDeclare(Exchange $exchange): self
     {
         $this->getChannel()->exchange_declare(
@@ -96,7 +108,7 @@ abstract class Connection
         return $this;
     }
 
-    public function queueDeclare(Queue $queue)
+    public function queueDeclare(Queue $queue): self
     {
         [$name,] = $this->getChannel()->queue_declare(
             $queue->getName(),
@@ -120,14 +132,16 @@ abstract class Connection
         Queue $queue,
         Exchange $exchange,
         string $bindingKey,
-        bool $nowait = false,
-        array $arguments = [],
-        ?int $ticket = null
+        array $options = []
     ): self {
         // queue binding is not permitted on the default exchange
         if ('' === $exchange->getName()) {
             return $this;
         }
+
+        $nowait = $options['nowait'] ?? false;
+        $arguments = $options['arguments'] ?? [];
+        $ticket = $options['ticket'] ?? null;
 
         $this->getChannel()->queue_bind(
             $queue->getName(),
@@ -137,6 +151,13 @@ abstract class Connection
             $arguments,
             $ticket
         );
+
+        return $this;
+    }
+
+    public function applyQos(Qos $qos): self
+    {
+        $this->getChannel()->basic_qos($qos->getPrefetchSize(), $qos->getPrefetchCount(), $qos->isGlobal());
 
         return $this;
     }
