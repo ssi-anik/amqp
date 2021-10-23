@@ -19,7 +19,7 @@ class Exchange
     protected $durable = true;
     protected $autoDelete = false;
     protected $internal = false;
-    protected $noWait = false;
+    protected $nowait = false;
     protected $arguments = [];
     protected $ticket = null;
 
@@ -65,7 +65,7 @@ class Exchange
         }
 
         if (isset($options['no_wait'])) {
-            $this->setNoWait((bool)$options['no_wait']);
+            $this->setNowait((bool)$options['no_wait']);
         }
 
         if (isset($options['arguments'])) {
@@ -163,14 +163,14 @@ class Exchange
         return $this;
     }
 
-    public function isNoWait(): bool
+    public function isNowait(): bool
     {
-        return $this->noWait;
+        return $this->nowait;
     }
 
-    public function setNoWait(bool $noWait): self
+    public function setNowait(bool $nowait): self
     {
-        $this->noWait = $noWait;
+        $this->nowait = $nowait;
 
         return $this;
     }
@@ -208,7 +208,7 @@ class Exchange
             $this->isDurable(),
             $this->isAutoDelete(),
             $this->isInternal(),
-            $this->isNoWait(),
+            $this->isNowait(),
             $this->getArguments(),
             $this->getTicket()
         );

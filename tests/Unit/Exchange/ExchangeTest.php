@@ -126,7 +126,7 @@ class ExchangeTest extends TestCase
                     $exchange->isDurable(),
                     $exchange->isAutoDelete(),
                     $exchange->isInternal(),
-                    $exchange->isNoWait(),
+                    $exchange->isNowait(),
                     $exchange->getArguments(),
                     $exchange->getTicket(),
                 ]

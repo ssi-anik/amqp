@@ -2,8 +2,9 @@
 
 namespace Anik\Amqp\Queues;
 
+use Anik\Amqp\Connection\ChannelInterface;
 use Anik\Amqp\Exceptions\AmqpException;
-use Anik\Amqp\Qos\Qos;
+use Anik\Amqp\Exchanges\Exchange;
 
 class Queue
 {
@@ -13,10 +14,9 @@ class Queue
     protected $durable = true;
     protected $exclusive = false;
     protected $autoDelete = false;
-    protected $noWait = false;
+    protected $nowait = false;
     protected $arguments = [];
     protected $ticket = null;
-    protected $qos = null;
 
     public function __construct(string $name)
     {
@@ -55,7 +55,7 @@ class Queue
         }
 
         if (isset($options['no_wait'])) {
-            $this->setNoWait((bool)$options['no_wait']);
+            $this->setNowait((bool)$options['no_wait']);
         }
 
         if (isset($options['arguments'])) {
@@ -64,10 +64,6 @@ class Queue
 
         if (isset($options['ticket'])) {
             $this->setTicket($options['ticket']);
-        }
-
-        if (isset($options['qos'])) {
-            $this->setQos($options['qos']);
         }
 
         return $this;
@@ -145,16 +141,16 @@ class Queue
         return $this->autoDelete;
     }
 
-    public function setNoWait(bool $noWait): self
+    public function setNowait(bool $nowait): self
     {
-        $this->noWait = $noWait;
+        $this->nowait = $nowait;
 
         return $this;
     }
 
-    public function isNoWait(): bool
+    public function isNowait(): bool
     {
-        return $this->noWait;
+        return $this->nowait;
     }
 
     public function getArguments(): array
@@ -181,15 +177,34 @@ class Queue
         return $this;
     }
 
-    public function setQos(?Qos $qos): self
+    public function declare(ChannelInterface $channel): self
     {
-        $this->qos = $qos;
+        [$name,] = $channel->declareQueue(
+            $this->getName(),
+            $this->isPassive(),
+            $this->isDurable(),
+            $this->isExclusive(),
+            $this->isAutoDelete(),
+            $this->isNowait(),
+            $this->getArguments(),
+            $this->getTicket()
+        );
+
+        if ($name !== $this->getName()) {
+            $this->setName($name);
+        }
 
         return $this;
     }
 
-    public function getQos(): ?Qos
-    {
-        return $this->qos;
+    public function bind(
+        ChannelInterface $channel,
+        Exchange $exchange,
+        string $bindingKey,
+        bool $nowait = false,
+        array $arguments = [],
+        ?int $ticket = null
+    ) {
+        $channel->queueBind($this->getName(), $exchange->getName(), $bindingKey, $nowait, $arguments, $ticket);
     }
 }
