@@ -4,7 +4,6 @@ namespace Anik\Amqp\Queues;
 
 use Anik\Amqp\Connection\ChannelInterface;
 use Anik\Amqp\Exceptions\AmqpException;
-use Anik\Amqp\Exchanges\Exchange;
 
 class Queue
 {
@@ -175,36 +174,5 @@ class Queue
         $this->ticket = $ticket;
 
         return $this;
-    }
-
-    public function declare(ChannelInterface $channel): self
-    {
-        [$name,] = $channel->declareQueue(
-            $this->getName(),
-            $this->isPassive(),
-            $this->isDurable(),
-            $this->isExclusive(),
-            $this->isAutoDelete(),
-            $this->isNowait(),
-            $this->getArguments(),
-            $this->getTicket()
-        );
-
-        if ($name !== $this->getName()) {
-            $this->setName($name);
-        }
-
-        return $this;
-    }
-
-    public function bind(
-        ChannelInterface $channel,
-        Exchange $exchange,
-        string $bindingKey,
-        bool $nowait = false,
-        array $arguments = [],
-        ?int $ticket = null
-    ) {
-        $channel->queueBind($this->getName(), $exchange->getName(), $bindingKey, $nowait, $arguments, $ticket);
     }
 }
