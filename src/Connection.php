@@ -63,6 +63,22 @@ abstract class Connection
         return $this->channel = $this->connection->channel();
     }
 
+    public function getChannelWithId(?int $channelId): AMQPChannel
+    {
+        return $this->connection->channel($channelId);
+    }
+
+    protected function makeOrReconfigureExchange(?Exchange $exchange, array $options): Exchange
+    {
+        if (is_null($exchange)) {
+            return Exchange::make($options);
+        } elseif (0 < count($options)) {
+            return $exchange->reconfigure($options);
+        }
+
+        return $exchange;
+    }
+
     public function exchangeDeclare(Exchange $exchange): self
     {
         $this->getChannel()->exchange_declare(
