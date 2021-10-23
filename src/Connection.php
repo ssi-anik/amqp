@@ -5,17 +5,17 @@ namespace Anik\Amqp;
 use Anik\Amqp\Exchanges\Exchange;
 use Anik\Amqp\Queues\Queue;
 use Exception;
-use PhpAmqpLib\Channel\AbstractChannel;
+use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
 
-class Connection
+abstract class Connection
 {
     /** @var AbstractConnection */
     private $connection;
-    /** @var AbstractChannel */
+    /** @var AMQPChannel */
     private $channel;
 
-    public function __construct(AbstractConnection $connection, ?AbstractChannel $channel = null)
+    public function __construct(AbstractConnection $connection, ?AMQPChannel $channel = null)
     {
         $this->connection = $connection;
         $this->channel = $channel;
@@ -47,21 +47,20 @@ class Connection
         }
     }
 
-    public function setChannel(AbstractChannel $channel): self
+    public function setChannel(AMQPChannel $channel): self
     {
         $this->channel = $channel;
 
         return $this;
     }
 
-    public function getChannel(?int $channelId = null): AbstractChannel
+    public function getChannel(): AMQPChannel
     {
-        // Channel is cached in the AMQP Connection
-        if (!empty($this->channel) && ($channelId === $this->channel->getChannelId())) {
+        if (!empty($this->channel) && (null !== $this->channel->getChannelId())) {
             return $this->channel;
         }
 
-        return $this->channel = $this->connection->channel($channelId);
+        return $this->channel = $this->connection->channel();
     }
 
     public function exchangeDeclare(Exchange $exchange): self
