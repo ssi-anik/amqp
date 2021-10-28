@@ -2,6 +2,7 @@
 
 namespace Anik\Amqp\Tests\Integration;
 
+use Anik\Amqp\Exceptions\AmqpException;
 use Anik\Amqp\Exchanges\Direct;
 use Anik\Amqp\Exchanges\Exchange;
 use Anik\Amqp\Exchanges\Fanout;
@@ -239,5 +240,119 @@ class ProducerTest extends AmqpTestCase
         }
 
         $this->getProducer()->publishBasic($msg, $routingKey, $exchange, $options);
+    }
+
+    /**
+     * @dataProvider publishMessageDataProvider
+     *
+     * @param array $data
+     */
+    public function testPublish(array $data)
+    {
+        $msg = $data['message'] ?? $this->getMessage();
+        $routingKey = $data['routing_key'] ?? $this->routingKey();
+        $exchange = $data['exchange'] ?? null;
+        $mandatory = $data['options']['publish']['mandatory'] ?? false;
+        $immediate = $data['options']['publish']['immediate'] ?? false;
+        $ticket = $data['options']['publish']['ticket'] ?? null;
+        $this->exchangeDeclareExpectation($data['expectations']['exchange']['times'] ?? null);
+
+        $this->publishExpectation(
+            $msg,
+            $exchange instanceof Exchange ? $exchange->getName() : ($data['expectations']['exchange_name'] ?? ''),
+            $routingKey,
+            $mandatory,
+            $immediate,
+            $ticket
+        );
+
+        $options = [];
+        if ($data['options']['exchange'] ?? false) {
+            $options['exchange'] = $data['options']['exchange'];
+        }
+
+        if ($data['options']['publish'] ?? []) {
+            $options['publish'] = $data['options']['publish'];
+        }
+
+        $this->getProducer()->publish($msg, $routingKey, $exchange, $options);
+    }
+
+    /**
+     * @dataProvider publishMessageDataProvider
+     *
+     * @param array $data
+     *
+     * @throws \Anik\Amqp\Exceptions\AmqpException
+     */
+    public function testPublishBatch(array $data)
+    {
+        $messages = $data['message'] ?? $this->getMessage();
+        $messages = is_array($messages) ? $messages : [$messages];
+        $routingKey = $data['routing_key'] ?? $this->routingKey();
+        $exchange = $data['exchange'] ?? null;
+        $mandatory = $data['options']['publish']['mandatory'] ?? false;
+        $immediate = $data['options']['publish']['immediate'] ?? false;
+        $ticket = $data['options']['publish']['ticket'] ?? null;
+        $this->exchangeDeclareExpectation($data['expectations']['exchange']['times'] ?? null);
+
+        $this->publishExpectation(
+            $messages,
+            $exchange instanceof Exchange ? $exchange->getName() : ($data['expectations']['exchange_name'] ?? ''),
+            $routingKey,
+            $mandatory,
+            $immediate,
+            $ticket
+        );
+
+        $options = [];
+        if ($data['options']['exchange'] ?? false) {
+            $options['exchange'] = $data['options']['exchange'];
+        }
+
+        if ($data['options']['publish'] ?? []) {
+            $options['publish'] = $data['options']['publish'];
+        }
+
+        $this->getProducer()->publishBatch($messages, $routingKey, $exchange, $options);
+    }
+
+    public function testPublishBatchWhenMessageIsNotAnImplementationOfProducible()
+    {
+        $exchange = Fanout::make(['name' => self::EXCHANGE_NAME, 'declare' => false]);
+        $this->expectException(AmqpException::class);
+        $this->getProducer()->publishBatch(['anik.amqp.string.msg'], '', $exchange);
+    }
+
+    public function testPublishBatchDefiningBatchCountNumber()
+    {
+        $exchange = Fanout::make(['name' => self::EXCHANGE_NAME, 'declare' => false]);
+        $this->setMethodExpectationsOnChannel(
+            [
+                'batch_basic_publish' => ['times' => $this->exactly(3)],
+                'publish_batch' => ['times' => $this->exactly(2)],
+            ]
+        );
+        $this->getProducer()->publishBatch(
+            [
+                $this->getMessage(),
+                $this->getMessage(),
+                $this->getMessage(),
+            ],
+            '',
+            $exchange,
+            ['publish' => ['batch_count' => 2]]
+        );
+    }
+
+    public function testPublishBatchDoesNotSendMessageIfEmptyMessagesArePassed()
+    {
+        $this->setMethodExpectationsOnChannel(
+            [
+                'batch_basic_publish' => ['times' => $this->never()],
+                'publish_batch' => ['times' => $this->never()],
+            ]
+        );
+        $this->getProducer()->publishBatch([]);
     }
 }
