@@ -42,7 +42,7 @@ class Producer extends Connection
         $immediate = $options['publish']['immediate'] ?? false;
         $ticket = $options['publish']['ticket'] ?? null;
 
-        $count = (int)($options['publish']['bulk_count'] ?? 500);
+        $count = $bulkCount = (int)($options['publish']['bulk_count'] ?? 500);
         foreach ($messages as $message) {
             if (!$message instanceof Producible) {
                 throw new AmqpException('Message must be an implementation of Anik\Amqp\Producible');
@@ -57,7 +57,7 @@ class Producer extends Connection
                 $ticket
             );
 
-            --$count <= 0 ? $count = 200 && $channel->publish_batch() : null;
+            --$count <= 0 ? $count = $bulkCount && $channel->publish_batch() : null;
         }
 
         $channel->publish_batch();
