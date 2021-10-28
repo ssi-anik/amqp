@@ -4,13 +4,16 @@ namespace Anik\Amqp\Tests\Integration;
 
 use Anik\Amqp\Producer;
 
-class ConnectionTest extends AmqpTest
+class ConnectionTest extends AmqpTestCase
 {
     public function testInstantiateConnectionWithOnlyAmqpConnection()
     {
         $connection = $this->connection;
-
-        $connection->expects($this->never())->method('channel');
+        $this->setMethodExpectationsOnConnection(
+            [
+                'channel' => ['times' => $this->never(), 'return' => null],
+            ]
+        );
 
         new Producer($connection);
     }
@@ -18,8 +21,12 @@ class ConnectionTest extends AmqpTest
     public function testInstantiateConnectionWithOnlyAmqpConnectionCallsGetChannelWhenConnectOnConstructIsTrue()
     {
         $connection = $this->connection;
-        $connection->expects($this->once())->method('connectOnConstruct')->willReturn(true);
-        $connection->expects($this->once())->method('channel')->willReturn($this->channel);
+        $this->setMethodExpectationsOnConnection(
+            [
+                'channel' => ['times' => 1, 'return' => $this->channel],
+                'connectOnConstruct' => ['times' => 1, 'return' => true],
+            ]
+        );
 
         $producer = new Producer($connection);
         $this->assertSame($this->channel, $producer->getChannel());
@@ -27,12 +34,18 @@ class ConnectionTest extends AmqpTest
 
     public function testInstantiateConnectionWithOnlyAmqpConnectionTriesToGetChannelFromAmqpConnection()
     {
-        $connection = $this->connection;
-        $channel = $this->channel;
-        $channel->expects($this->never())->method('getChannelId');
-        $connection->expects($this->once())->method('channel')->willReturn($this->channel);
+        $this->setMethodExpectationsOnChannel(
+            [
+                'getChannelId' => ['times' => $this->never(),],
+            ]
+        );
+        $this->setMethodExpectationsOnConnection(
+            [
+                'channel' => ['times' => $this->once(), 'return' => $this->channel],
+            ]
+        );
 
-        $producer = new Producer($connection);
+        $producer = new Producer($this->connection);
         $this->assertSame($this->channel, $producer->getChannel());
     }
 
