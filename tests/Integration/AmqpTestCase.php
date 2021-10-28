@@ -14,6 +14,11 @@ class AmqpTestCase extends TestCase
     protected $connection;
     protected $channel;
 
+    public const ROUTING_KEY = 'anik.amqp.routing_key';
+    public const BINDING_KEY = 'anik.amqp.routing_key';
+    public const EXCHANGE_NAME = 'anik.amqp.exchange';
+    public const QUEUE_NAME = 'anik.amqp.queue';
+
     protected function getConnectionMock($class = AMQPLazySSLConnection::class): AbstractConnection
     {
         if (!is_subclass_of($class, AbstractConnection::class)) {

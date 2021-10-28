@@ -7,6 +7,7 @@ use Anik\Amqp\Exchanges\Direct;
 use Anik\Amqp\Exchanges\Exchange;
 use Anik\Amqp\Exchanges\Fanout;
 use Anik\Amqp\Producer;
+use Anik\Amqp\Queues\Queue;
 use Closure;
 use Exception;
 
@@ -181,10 +182,45 @@ class ConnectionTest extends AmqpTestCase
         )->bindTo($producer)->call($producer);
     }
 
+    /**
+     * @dataProvider queueConfigureDataProvider
+     *
+     * @param array $data
+     */
+    public function testConnectionIsAbleToMakeOrConfigureQueue(array $data)
+    {
+        $queue = $data['queue'] ?? null;
+        $options = $data['options'] ?? [];
+        $checks = $data['checks'] ?? [];
+        $producer = new Producer($this->connection);
+
+        $configuredQueue = Closure::fromCallable(
+            function () use ($queue, $options) {
+                return $this->makeOrReconfigureQueue($queue, $options);
+            }
+        )->call($producer);
+
+        foreach ($checks as $method => $expectation) {
+            $this->assertEquals($configuredQueue->$method(), $expectation);
+        }
+    }
+
+    public function testNameIsRequiredWhenConnectionMakesQueueFromOptions()
+    {
+        $this->expectException(AmqpException::class);
+        $producer = new Producer($this->connection);
+
+        Closure::fromCallable(
+            function () {
+                return $this->makeOrReconfigureQueue(null, []);
+            }
+        )->bindTo($producer)->call($producer);
+    }
+
     public function exchangeConfigureDataProvider(): array
     {
         return [
-            'should create an exchange' => [
+            'should create an exchange instance' => [
                 [
                     'exchange' => null,
                     'options' => [
@@ -226,6 +262,59 @@ class ConnectionTest extends AmqpTestCase
                         'getName' => self::EXCHANGE_NAME,
                         'isAutoDelete' => false,
                         'isInternal' => false,
+                        'isDurable' => true,
+                        'getArguments' => [],
+                        'getTicket' => null,
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    public function queueConfigureDataProvider(): array
+    {
+        return [
+            'should create an queue instance' => [
+                [
+                    'queue' => null,
+                    'options' => [
+                        'name' => self::QUEUE_NAME,
+                    ],
+                    'checks' => [
+                        'shouldDeclare' => false,
+                        'isPassive' => false,
+                        'isAutoDelete' => false,
+                        'isDurable' => true,
+                    ],
+                ],
+            ],
+            'should reconfigure queue if provided to the method' => [
+                [
+                    'queue' => new Queue(self::QUEUE_NAME),
+                    'options' => [
+                        'durable' => false,
+                        'auto_delete' => true,
+                        'exclusive' => true,
+                        'arguments' => ['key' => 'value'],
+                        'ticket' => 20,
+                    ],
+                    'checks' => [
+                        'getName' => self::QUEUE_NAME,
+                        'isAutoDelete' => true,
+                        'isExclusive' => true,
+                        'isDurable' => false,
+                        'getArguments' => ['key' => 'value'],
+                        'getTicket' => 20,
+                    ],
+                ],
+            ],
+            'queue is not reconfigured if options are not provided' => [
+                [
+                    'queue' => new Queue(self::QUEUE_NAME),
+                    'checks' => [
+                        'getName' => self::QUEUE_NAME,
+                        'isAutoDelete' => false,
+                        'isExclusive' => false,
                         'isDurable' => true,
                         'getArguments' => [],
                         'getTicket' => null,
