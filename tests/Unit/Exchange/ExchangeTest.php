@@ -66,6 +66,112 @@ class ExchangeTest extends TestCase
         ];
     }
 
+    public function exchangeOptionsValueProvider(): array
+    {
+        return [
+            'setting name' => [
+                [
+                    'changes' => [
+                        'setName' => 'anik.amqp.exchange.new-name',
+                    ],
+                    'checks' => [
+                        'getName' => 'anik.amqp.exchange.new-name',
+                    ],
+                ],
+            ],
+            'setting type' => [
+                [
+                    'changes' => [
+                        'setType' => Exchange::TYPE_TOPIC,
+                    ],
+                    'checks' => [
+                        'getType' => Exchange::TYPE_TOPIC,
+                    ],
+                ],
+            ],
+            'setting declare' => [
+                [
+                    'changes' => [
+                        'setDeclare' => true,
+                    ],
+                    'checks' => [
+                        'shouldDeclare' => true,
+                    ],
+                ],
+            ],
+            'setting passive' => [
+                [
+                    'changes' => [
+                        'setPassive' => true,
+                    ],
+                    'checks' => [
+                        'isPassive' => true,
+                    ],
+                ],
+            ],
+            'setting durable' => [
+                [
+                    'changes' => [
+                        'setDurable' => false,
+                    ],
+                    'checks' => [
+                        'isDurable' => false,
+                    ],
+                ],
+            ],
+            'setting auto delete' => [
+                [
+                    'changes' => [
+                        'setAutoDelete' => true,
+                    ],
+                    'checks' => [
+                        'isAutoDelete' => true,
+                    ],
+                ],
+            ],
+            'setting internal' => [
+                [
+                    'changes' => [
+                        'setInternal' => true,
+                    ],
+                    'checks' => [
+                        'isInternal' => true,
+                    ],
+                ],
+            ],
+            'setting no wait' => [
+                [
+                    'changes' => [
+                        'setNowait' => true,
+                    ],
+                    'checks' => [
+                        'isNowait' => true,
+                    ],
+                ],
+            ],
+            'setting arguments' => [
+                [
+                    'changes' => [
+                        'setArguments' => ['key' => 'value'],
+                    ],
+                    'checks' => [
+                        'getArguments' => ['key' => 'value'],
+                    ],
+                ],
+            ],
+            'setting ticket' => [
+                [
+                    'changes' => [
+                        'setTicket' => 100,
+                    ],
+                    'checks' => [
+                        'getTicket' => 100,
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * @dataProvider validExchangeNameAndTypeProvider
      *
@@ -164,5 +270,22 @@ class ExchangeTest extends TestCase
                 ]
             )
         );
+    }
+
+    /**
+     * @dataProvider exchangeOptionsValueProvider
+     *
+     * @param array $data
+     */
+    public function testExchangePropertiesCanBeModifiedByCallingMethods(array $data)
+    {
+        $exchange = new Exchange('anik.amqp.exchange.fanout', Exchange::TYPE_FANOUT);
+        foreach ($data['changes'] as $method => $value) {
+            $exchange->$method($value);
+        }
+
+        foreach ($data['checks'] ?? [] as $method => $value) {
+            $this->assertEquals($value, $exchange->$method());
+        }
     }
 }
