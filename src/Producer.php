@@ -57,7 +57,10 @@ class Producer extends Connection
                 $ticket
             );
 
-            --$count <= 0 ? $count = $bulkCount && $channel->publish_batch() : null;
+            if (--$count <= 0) {
+                $count = $bulkCount;
+                $channel->publish_batch();
+            }
         }
 
         $channel->publish_batch();
