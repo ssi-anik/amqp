@@ -19,7 +19,7 @@ class HeadersExchangeTest extends TestCase
     {
         $name = 'example.headers';
 
-        $exchange = Headers::make(['name' => $name, 'type' => Exchange::TYPE_DIRECT]);
+        $exchange = Headers::make(['name' => $name,]);
         $this->assertEquals($name, $exchange->getName());
         $this->assertEquals(Exchange::TYPE_HEADERS, $exchange->getType());
     }

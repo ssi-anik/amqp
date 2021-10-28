@@ -9,6 +9,11 @@ class Topic extends Exchange
         parent::__construct($name, self::TYPE_TOPIC);
     }
 
+    public static function make(array $options): Exchange
+    {
+        return parent::make(['type' => self::TYPE_TOPIC] + $options);
+    }
+
     public function setType($type): Exchange
     {
         $this->type = self::TYPE_TOPIC;

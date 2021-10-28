@@ -19,7 +19,7 @@ class TopicExchangeTest extends TestCase
     {
         $name = 'example.topic';
 
-        $exchange = Topic::make(['name' => $name, 'type' => Exchange::TYPE_FANOUT]);
+        $exchange = Topic::make(['name' => $name,]);
         $this->assertEquals($name, $exchange->getName());
         $this->assertEquals(Exchange::TYPE_TOPIC, $exchange->getType());
     }

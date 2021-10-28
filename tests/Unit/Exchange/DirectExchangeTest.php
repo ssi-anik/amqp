@@ -19,7 +19,7 @@ class DirectExchangeTest extends TestCase
     {
         $name = 'example.direct';
 
-        $exchange = Direct::make(['name' => $name, 'type' => Exchange::TYPE_HEADERS]);
+        $exchange = Direct::make(['name' => $name,]);
         $this->assertEquals($name, $exchange->getName());
         $this->assertEquals(Exchange::TYPE_DIRECT, $exchange->getType());
     }
