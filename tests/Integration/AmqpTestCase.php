@@ -45,13 +45,15 @@ class AmqpTestCase extends TestCase
         return $this->getMockBuilder(AMQPChannel::class)->disableOriginalConstructor()->getMock();
     }
 
-    protected function setMethodExpectations(MockObject $instance, $method, $times, $return): void
+    protected function setMethodExpectations(MockObject $instance, $method, $times, $return): MockObject
     {
         if (!$times instanceof InvocationOrder) {
             $times = is_null($times) ? $this->any() : $this->exactly($times);
         }
 
         $instance->expects($times)->method($method)->willReturn($return);
+
+        return $instance;
     }
 
     protected function setMethodExpectationsOnConnection(array $options): void
