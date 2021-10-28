@@ -33,7 +33,7 @@ abstract class Connection
 
     public function close()
     {
-        if ($this->channel) {
+        if ($this->channel && $this->channel->is_open()) {
             try {
                 $this->channel->close();
             } catch (Exception $e) {
