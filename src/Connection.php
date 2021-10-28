@@ -31,7 +31,7 @@ abstract class Connection
         $this->close();
     }
 
-    public function close()
+    protected function close()
     {
         if ($this->channel && $this->channel->is_open()) {
             try {
