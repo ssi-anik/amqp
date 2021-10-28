@@ -69,7 +69,7 @@ abstract class Connection
         return $this->connection->channel($channelId);
     }
 
-    protected function makeOrReconfigureExchange(?Exchange $exchange, array $options): Exchange
+    protected function makeOrReconfigureExchange(?Exchange $exchange, array $options = []): Exchange
     {
         if (is_null($exchange)) {
             return Exchange::make($options);
