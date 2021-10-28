@@ -22,10 +22,10 @@ class Producer extends Connection
         ?Exchange $exchange = null,
         array $options = []
     ): bool {
-        return $this->publishBulk([$message], $routingKey, $exchange, $options);
+        return $this->publishBatch([$message], $routingKey, $exchange, $options);
     }
 
-    public function publishBulk(
+    public function publishBatch(
         array $messages,
         string $routingKey = '',
         ?Exchange $exchange = null,
@@ -42,7 +42,7 @@ class Producer extends Connection
         $immediate = $options['publish']['immediate'] ?? false;
         $ticket = $options['publish']['ticket'] ?? null;
 
-        $count = $bulkCount = (int)($options['publish']['bulk_count'] ?? 500);
+        $count = $batchCount = (int)($options['publish']['batch_count'] ?? 500);
         foreach ($messages as $message) {
             if (!$message instanceof Producible) {
                 throw new AmqpException('Message must be an implementation of Anik\Amqp\Producible');
@@ -58,7 +58,7 @@ class Producer extends Connection
             );
 
             if (--$count <= 0) {
-                $count = $bulkCount;
+                $count = $batchCount;
                 $channel->publish_batch();
             }
         }
