@@ -80,7 +80,7 @@ abstract class Connection
         return $exchange;
     }
 
-    protected function makeOrReconfigureQueue(?Queue $queue, array $options): Queue
+    protected function makeOrReconfigureQueue(?Queue $queue, array $options = []): Queue
     {
         if (is_null($queue)) {
             return Queue::make($options);
