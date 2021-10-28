@@ -2,11 +2,13 @@
 
 namespace Anik\Amqp\Tests\Integration;
 
+use Anik\Amqp\Exchanges\Exchange;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Connection\AMQPLazySSLConnection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Rule\InvocationOrder;
+use PHPUnit\Framework\MockObject\Stub\Stub;
 use PHPUnit\Framework\TestCase;
 
 class AmqpTestCase extends TestCase
@@ -56,7 +58,12 @@ class AmqpTestCase extends TestCase
             $times = is_null($times) ? $this->any() : $this->exactly($times);
         }
 
-        $instance->expects($times)->method($method)->willReturn($return);
+        $invocation = $instance->expects($times)->method($method);
+        if ($return instanceof Stub) {
+            $invocation->will($return);
+        } else {
+            $invocation->willReturn($return);
+        }
 
         return $instance;
     }
@@ -81,9 +88,45 @@ class AmqpTestCase extends TestCase
 
         foreach ($options as $method => $params) {
             $method = $mapper[$method] ?? $method;
-            $return = $params['params'] ?? $params['parameters'] ?? $params['return'] ?? $params;
+            $return = $params['checks'] ?? $params['return'] ?? $params['params'] ?? $params['parameters'] ?? $params;
             $this->setMethodExpectations($this->channel, $method, $params['times'] ?? null, $return);
         }
+    }
+
+    protected function exchangeDeclareExpectation($times = null)
+    {
+        $this->setMethodExpectations($this->channel, 'exchange_declare', $times, null);
+    }
+
+    protected function exchangeOptions(?array $options = null): array
+    {
+        return ($options ?? []) + [
+                'name' => self::EXCHANGE_NAME,
+                'type' => Exchange::TYPE_DIRECT,
+                'declare' => true,
+                'passive' => true,
+                'durable' => true,
+                'auto_delete' => false,
+                'internal' => false,
+                'no_wait' => false,
+                'arguments' => [],
+                'ticket' => null,
+            ];
+    }
+
+    protected function getExchange(?array $options = null): Exchange
+    {
+        return Exchange::make($this->exchangeOptions($options));
+    }
+
+    protected function routingKey(?string $key = null): string
+    {
+        return $key ?? self::ROUTING_KEY;
+    }
+
+    protected function bindingKey(?string $key = null): string
+    {
+        return $key ?? self::BINDING_KEY;
     }
 
     protected function setUp(): void
