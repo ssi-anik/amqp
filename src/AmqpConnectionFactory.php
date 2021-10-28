@@ -35,7 +35,7 @@ class AmqpConnectionFactory
     ): AbstractConnection {
         $amqpConnectionClass = $amqpConnectionClass ?? AMQPLazySSLConnection::class;
         if (!is_subclass_of($amqpConnectionClass, AbstractConnection::class)) {
-            throw new AmqpException('$amqpConnectionClass must be a class name of AbstractConnection::class');
+            throw new AmqpException('$amqpConnectionClass expects a classname that extends AbstractConnection::class');
         }
 
         return $amqpConnectionClass::create_connection($hosts, $options);
