@@ -32,7 +32,7 @@ class ProducibleMessage implements Producible
         return new AMQPMessage($this->getMessage(), $this->getProperties());
     }
 
-    protected function getProperties(): array
+    public function getProperties(): array
     {
         return $this->properties;
     }
