@@ -47,8 +47,8 @@ class Consumer extends Connection
             $this->setExclusive((bool)$options['exclusive']);
         }
 
-        if (isset($options['nowait'])) {
-            $this->setNowait((bool)$options['nowait']);
+        if (isset($options['no_wait'])) {
+            $this->setNowait((bool)$options['no_wait']);
         }
 
         if (isset($options['arguments'])) {
@@ -67,14 +67,14 @@ class Consumer extends Connection
         return sprintf("anik.amqp_consumer_%s_%s", gethostname(), getmypid());
     }
 
-    protected function setConsumerTag(string $tag): self
+    public function setConsumerTag(string $tag): self
     {
         $this->consumerTag = $tag;
 
         return $this;
     }
 
-    protected function getConsumerTag(): string
+    public function getConsumerTag(): string
     {
         return $this->consumerTag;
     }
@@ -151,6 +151,17 @@ class Consumer extends Connection
         return $this->ticket;
     }
 
+    protected function prepareQos(?Qos $qos, array $options = []): ?Qos
+    {
+        if (is_null($qos) && $options) {
+            $qos = Qos::make($options);
+        } elseif ($qos && $options) {
+            $qos->reconfigure($options);
+        }
+
+        return $qos;
+    }
+
     public function consume(
         Consumable $handler,
         string $bindingKey = '',
@@ -171,13 +182,7 @@ class Consumer extends Connection
 
         $this->queueBind($queue, $exchange, $bindingKey, $options['bind'] ?? []);
 
-        if (is_null($qos) && isset($options['qos'])) {
-            $qos = Qos::make($options['qos']);
-        } elseif ($qos && isset($options['qos'])) {
-            $qos = $qos->reconfigure($options['qos']);
-        }
-
-        if ($qos) {
+        if ($qos = $this->prepareQos($qos, $options['qos'] ?? [])) {
             $this->applyQos($qos);
         }
 

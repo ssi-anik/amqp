@@ -139,7 +139,7 @@ abstract class Connection
             return $this;
         }
 
-        $nowait = $options['nowait'] ?? false;
+        $nowait = $options['no_wait'] ?? false;
         $arguments = $options['arguments'] ?? [];
         $ticket = $options['ticket'] ?? null;
 
