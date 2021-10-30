@@ -49,7 +49,7 @@ class ConnectionTest extends AmqpTestCase
 
         $producer = new Producer($this->connection);
         $this->assertSame($channel, $producer->getChannel());
-        $this->assertEquals(5, $producer->getChannel()->getChannelId());
+        $this->assertSame(5, $producer->getChannel()->getChannelId());
     }
 
     public function testConstructConnectionWithAmqpConnectionAndChannel()
@@ -166,7 +166,7 @@ class ConnectionTest extends AmqpTestCase
         )->call($producer);
 
         foreach ($checks as $method => $expectation) {
-            $this->assertEquals($configuredExchange->$method(), $expectation);
+            $this->assertSame($configuredExchange->$method(), $expectation);
         }
     }
 
@@ -201,7 +201,7 @@ class ConnectionTest extends AmqpTestCase
         )->call($producer);
 
         foreach ($checks as $method => $expectation) {
-            $this->assertEquals($configuredQueue->$method(), $expectation);
+            $this->assertSame($configuredQueue->$method(), $expectation);
         }
     }
 

@@ -11,8 +11,8 @@ class HeadersExchangeTest extends TestCase
     public function testHeadersExchangeInstantiation()
     {
         $exchange = new Headers($name = 'example.headers');
-        $this->assertEquals($name, $exchange->getName());
-        $this->assertEquals(Exchange::TYPE_HEADERS, $exchange->getType());
+        $this->assertSame($name, $exchange->getName());
+        $this->assertSame(Exchange::TYPE_HEADERS, $exchange->getType());
     }
 
     public function testHeadersExchangeInstantiationFromArray()
@@ -20,14 +20,14 @@ class HeadersExchangeTest extends TestCase
         $name = 'example.headers';
 
         $exchange = Headers::make(['name' => $name,]);
-        $this->assertEquals($name, $exchange->getName());
-        $this->assertEquals(Exchange::TYPE_HEADERS, $exchange->getType());
+        $this->assertSame($name, $exchange->getName());
+        $this->assertSame(Exchange::TYPE_HEADERS, $exchange->getType());
     }
 
     public function testExchangeTypeCannotBeChanged()
     {
         $exchange = new Headers('example.headers');
         $exchange->setType(Exchange::TYPE_DIRECT);
-        $this->assertEquals(Exchange::TYPE_HEADERS, $exchange->getType());
+        $this->assertSame(Exchange::TYPE_HEADERS, $exchange->getType());
     }
 }

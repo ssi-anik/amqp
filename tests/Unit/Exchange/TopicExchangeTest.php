@@ -11,8 +11,8 @@ class TopicExchangeTest extends TestCase
     public function testTopicExchangeInstantiation()
     {
         $exchange = new Topic($name = 'example.topic');
-        $this->assertEquals($name, $exchange->getName());
-        $this->assertEquals(Exchange::TYPE_TOPIC, $exchange->getType());
+        $this->assertSame($name, $exchange->getName());
+        $this->assertSame(Exchange::TYPE_TOPIC, $exchange->getType());
     }
 
     public function testTopicExchangeInstantiationFromArray()
@@ -20,14 +20,14 @@ class TopicExchangeTest extends TestCase
         $name = 'example.topic';
 
         $exchange = Topic::make(['name' => $name,]);
-        $this->assertEquals($name, $exchange->getName());
-        $this->assertEquals(Exchange::TYPE_TOPIC, $exchange->getType());
+        $this->assertSame($name, $exchange->getName());
+        $this->assertSame(Exchange::TYPE_TOPIC, $exchange->getType());
     }
 
     public function testExchangeTypeCannotBeChanged()
     {
         $exchange = new Topic('example.topic');
         $exchange->setType(Exchange::TYPE_FANOUT);
-        $this->assertEquals(Exchange::TYPE_TOPIC, $exchange->getType());
+        $this->assertSame(Exchange::TYPE_TOPIC, $exchange->getType());
     }
 }

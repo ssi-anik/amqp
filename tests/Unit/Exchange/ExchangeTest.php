@@ -181,8 +181,8 @@ class ExchangeTest extends TestCase
     public function testCreateExchangeWithNameAndTypeOnly(string $name, string $type)
     {
         $e = new Exchange($name, $type);
-        $this->assertEquals($name, $e->getName());
-        $this->assertEquals($type, $e->getType());
+        $this->assertSame($name, $e->getName());
+        $this->assertSame($type, $e->getType());
     }
 
     /**
@@ -196,8 +196,8 @@ class ExchangeTest extends TestCase
     public function testCreateExchangeFromArray(string $name, string $type)
     {
         $e = Exchange::make(['name' => $name, 'type' => $type]);
-        $this->assertEquals($name, $e->getName());
-        $this->assertEquals($type, $e->getType());
+        $this->assertSame($name, $e->getName());
+        $this->assertSame($type, $e->getType());
     }
 
     /**
@@ -285,7 +285,7 @@ class ExchangeTest extends TestCase
         }
 
         foreach ($data['checks'] ?? [] as $method => $value) {
-            $this->assertEquals($value, $exchange->$method());
+            $this->assertSame($value, $exchange->$method());
         }
     }
 }

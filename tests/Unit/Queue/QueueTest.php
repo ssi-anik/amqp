@@ -69,7 +69,7 @@ class QueueTest extends TestCase
     public function testCreateQueueWithNameOnly(string $name)
     {
         $queue = new Queue($name);
-        $this->assertEquals($name, $queue->getName());
+        $this->assertSame($name, $queue->getName());
     }
 
     /**

@@ -59,11 +59,11 @@ class ProducerTest extends AmqpTestCase
                             $expectedTicket
                         ) {
                             $this->assertInstanceOf(AMQPMessage::class, $msg);
-                            $this->assertEquals($expectedRoutingKey, $rk);
-                            $this->assertEquals($expectedExchangeName, $en);
-                            $this->assertEquals($expectedMandatory, $mandatory);
-                            $this->assertEquals($expectedImmediate, $immediate);
-                            $this->assertEquals($expectedTicket, $ticket);
+                            $this->assertSame($expectedRoutingKey, $rk);
+                            $this->assertSame($expectedExchangeName, $en);
+                            $this->assertSame($expectedMandatory, $mandatory);
+                            $this->assertSame($expectedImmediate, $immediate);
+                            $this->assertSame($expectedTicket, $ticket);
                         }
                     ),
                 ],

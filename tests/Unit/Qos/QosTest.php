@@ -21,9 +21,9 @@ class QosTest extends TestCase
     public function testConstructQosWithDefaultParameters()
     {
         $qos = new Qos();
-        $this->assertEquals(0, $qos->getPrefetchSize());
-        $this->assertEquals(0, $qos->getPrefetchCount());
-        $this->assertEquals(false, $qos->isGlobal());
+        $this->assertSame(0, $qos->getPrefetchSize());
+        $this->assertSame(0, $qos->getPrefetchCount());
+        $this->assertSame(false, $qos->isGlobal());
     }
 
     /**
@@ -35,9 +35,9 @@ class QosTest extends TestCase
     {
         $qos = Qos::make($data);
 
-        $this->assertEquals($data['prefetch_size'] ?? 0, $qos->getPrefetchSize());
-        $this->assertEquals($data['prefetch_count'] ?? 0, $qos->getPrefetchCount());
-        $this->assertEquals($data['global'] ?? false, $qos->isGlobal());
+        $this->assertSame($data['prefetch_size'] ?? 0, $qos->getPrefetchSize());
+        $this->assertSame($data['prefetch_count'] ?? 0, $qos->getPrefetchCount());
+        $this->assertSame($data['global'] ?? false, $qos->isGlobal());
     }
 
     /**
@@ -50,8 +50,8 @@ class QosTest extends TestCase
         $qos = new Qos();
         $qos->reconfigure($data);
 
-        $this->assertEquals($data['prefetch_size'] ?? 0, $qos->getPrefetchSize());
-        $this->assertEquals($data['prefetch_count'] ?? 0, $qos->getPrefetchCount());
-        $this->assertEquals($data['global'] ?? false, $qos->isGlobal());
+        $this->assertSame($data['prefetch_size'] ?? 0, $qos->getPrefetchSize());
+        $this->assertSame($data['prefetch_count'] ?? 0, $qos->getPrefetchCount());
+        $this->assertSame($data['global'] ?? false, $qos->isGlobal());
     }
 }
