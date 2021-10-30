@@ -17,50 +17,45 @@ class ConsumableMessage implements Consumable
         $this->callable = $callable;
     }
 
-    public function ack(bool $multiple = false): bool
+    private function assertThatMessageIsSet()
     {
         if (!$this->message) {
-            return false;
+            throw new AmqpException('Message should be set first');
         }
+    }
+
+    public function ack(bool $multiple = false): void
+    {
+        $this->assertThatMessageIsSet();
 
         $this->message->ack($multiple);
-
-        return true;
     }
 
-    public function nack(bool $requeue = false, bool $multiple = false): bool
+    public function nack(bool $requeue = false, bool $multiple = false): void
     {
-        if (!$this->message) {
-            return false;
-        }
+        $this->assertThatMessageIsSet();
 
         $this->message->nack($requeue, $multiple);
-
-        return true;
     }
 
-    public function reject(bool $requeue = true): bool
+    public function reject(bool $requeue = true): void
     {
-        if (!$this->message) {
-            return false;
-        }
+        $this->assertThatMessageIsSet();
 
         $this->message->reject($requeue);
-
-        return true;
     }
 
     public function getMessageBody(): string
     {
-        if (!$this->message) {
-            throw new AmqpException('Message is not received yet.');
-        }
+        $this->assertThatMessageIsSet();
 
         return $this->message->getBody();
     }
 
     public function handle(): void
     {
+        $this->assertThatMessageIsSet();
+
         call_user_func($this->callable, $this, $this->message);
     }
 
