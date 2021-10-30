@@ -79,6 +79,74 @@ class ProducerTest extends AmqpTestCase
         }
     }
 
+    public function exchangeDeclareDataProvider(): array
+    {
+        return [
+            'when exchange is an instance and configuration is unavailable' => [
+                [
+                    'exchange' => Exchange::make(
+                        [
+                            'name' => self::EXCHANGE_NAME,
+                            'type' => Exchange::TYPE_DIRECT,
+                            'declare' => true,
+                            'passive' => true,
+                            'arguments' => ['key' => 'value'],
+                            'ticket' => 1,
+                            'no_wait' => true,
+                        ]
+                    ),
+                    'expectations' => [
+                        'name' => self::EXCHANGE_NAME,
+                        'type' => Exchange::TYPE_DIRECT,
+                        'declare' => true,
+                        'passive' => true,
+                        'arguments' => ['key' => 'value'],
+                        'ticket' => 1,
+                        'no_wait' => true,
+                    ],
+                ],
+            ],
+            'when exchange is null but option has configuration' => [
+                [
+                    'options' => [
+                        'name' => self::EXCHANGE_NAME,
+                        'type' => Exchange::TYPE_HEADERS,
+                        'declare' => true,
+                    ],
+                    'expectations' => [
+                        'name' => self::EXCHANGE_NAME,
+                        'type' => Exchange::TYPE_HEADERS,
+                    ],
+                ],
+            ],
+            'when exchange and configuration options both are available' => [
+                [
+                    'exchange' => Topic::make(['name' => self::EXCHANGE_NAME, 'declare' => true, 'durable' => false]),
+                    'options' => [
+                        'arguments' => ['key' => 'value'],
+                        'ticket' => 12,
+                        'no_wait' => true,
+                    ],
+                    'expectations' => [
+                        'name' => self::EXCHANGE_NAME,
+                        'type' => Exchange::TYPE_TOPIC,
+                        'ticket' => 12,
+                        'arguments' => ['key' => 'value'],
+                        'durable' => false,
+                        'no_wait' => true,
+                    ],
+                ],
+            ],
+            'when exchange and configuration both are empty' => [
+                [
+                    'expectations' => [
+                        'exception' => true,
+                    ],
+                ],
+            ],
+        ];
+    }
+
     public function publishMessageDataProvider(): array
     {
         return [
@@ -249,6 +317,73 @@ class ProducerTest extends AmqpTestCase
     }
 
     /**
+     * @dataProvider exchangeDeclareDataProvider
+     *
+     * @param array $data
+     */
+    public function testPublishBasicCallsExchangeDeclareWithCorrectData(array $data)
+    {
+        $messages = $this->getMessage();
+        $routingKey = $this->routingKey();
+        $exchange = $data['exchange'] ?? null;
+        $options = $data['options'] ?? [];
+
+        if ($data['expectations']['exception'] ?? false) {
+            $this->expectException(AmqpException::class);
+        } else {
+            $expectedName = $data['expectations']['name'];
+            $expectedType = $data['expectations']['type'];
+            $expectedPassive = $data['expectations']['passive'] ?? false;
+            $expectedDurable = $data['expectations']['durable'] ?? true;
+            $expectedAutoDelete = $data['expectations']['auto_delete'] ?? false;
+            $expectedInternal = $data['expectations']['internal'] ?? false;
+            $expectedNowait = $data['expectations']['no_wait'] ?? false;
+            $expectedArguments = $data['expectations']['arguments'] ?? [];
+            $expectedTicket = $data['expectations']['ticket'] ?? null;
+            $this->exchangeDeclareExpectation(
+                $this->once(),
+                $this->returnCallback(
+                    function (
+                        $name,
+                        $type,
+                        $passive,
+                        $durable,
+                        $autoDelete,
+                        $internal,
+                        $nowait,
+                        $arguments,
+                        $ticket
+                    ) use (
+                        $expectedName,
+                        $expectedType,
+                        $expectedPassive,
+                        $expectedDurable,
+                        $expectedAutoDelete,
+                        $expectedInternal,
+                        $expectedNowait,
+                        $expectedArguments,
+                        $expectedTicket
+                    ) {
+                        $this->assertSame($expectedName, $name);
+                        $this->assertSame($expectedType, $type);
+                        $this->assertSame($expectedPassive, $passive);
+                        $this->assertSame($expectedDurable, $durable);
+                        $this->assertSame($expectedAutoDelete, $autoDelete);
+                        $this->assertSame($expectedInternal, $internal);
+                        $this->assertSame($expectedNowait, $nowait);
+                        $this->assertSame($expectedArguments, $arguments);
+                        $this->assertSame($expectedTicket, $ticket);
+                    }
+                )
+            );
+        }
+
+        $this->setMethodExpectations($this->channel, 'basic_publish', null, null);
+
+        $this->getProducer()->publishBasic($messages, $routingKey, $exchange, ['exchange' => $options]);
+    }
+
+    /**
      * @dataProvider publishMessageDataProvider
      *
      * @param array $data
@@ -282,6 +417,73 @@ class ProducerTest extends AmqpTestCase
         }
 
         $this->getProducer()->publish($msg, $routingKey, $exchange, $options);
+    }
+
+    /**
+     * @dataProvider exchangeDeclareDataProvider
+     *
+     * @param array $data
+     */
+    public function testPublishCallsExchangeDeclareWithCorrectData(array $data)
+    {
+        $messages = $this->getMessage();
+        $routingKey = $this->routingKey();
+        $exchange = $data['exchange'] ?? null;
+        $options = $data['options'] ?? [];
+
+        if ($data['expectations']['exception'] ?? false) {
+            $this->expectException(AmqpException::class);
+        } else {
+            $expectedName = $data['expectations']['name'];
+            $expectedType = $data['expectations']['type'];
+            $expectedPassive = $data['expectations']['passive'] ?? false;
+            $expectedDurable = $data['expectations']['durable'] ?? true;
+            $expectedAutoDelete = $data['expectations']['auto_delete'] ?? false;
+            $expectedInternal = $data['expectations']['internal'] ?? false;
+            $expectedNowait = $data['expectations']['no_wait'] ?? false;
+            $expectedArguments = $data['expectations']['arguments'] ?? [];
+            $expectedTicket = $data['expectations']['ticket'] ?? null;
+            $this->exchangeDeclareExpectation(
+                $this->once(),
+                $this->returnCallback(
+                    function (
+                        $name,
+                        $type,
+                        $passive,
+                        $durable,
+                        $autoDelete,
+                        $internal,
+                        $nowait,
+                        $arguments,
+                        $ticket
+                    ) use (
+                        $expectedName,
+                        $expectedType,
+                        $expectedPassive,
+                        $expectedDurable,
+                        $expectedAutoDelete,
+                        $expectedInternal,
+                        $expectedNowait,
+                        $expectedArguments,
+                        $expectedTicket
+                    ) {
+                        $this->assertSame($expectedName, $name);
+                        $this->assertSame($expectedType, $type);
+                        $this->assertSame($expectedPassive, $passive);
+                        $this->assertSame($expectedDurable, $durable);
+                        $this->assertSame($expectedAutoDelete, $autoDelete);
+                        $this->assertSame($expectedInternal, $internal);
+                        $this->assertSame($expectedNowait, $nowait);
+                        $this->assertSame($expectedArguments, $arguments);
+                        $this->assertSame($expectedTicket, $ticket);
+                    }
+                )
+            );
+        }
+
+        $this->setMethodExpectations($this->channel, 'basic_publish', null, null);
+
+        $this->getProducer()->publish($messages, $routingKey, $exchange, ['exchange' => $options]);
     }
 
     /**
@@ -321,6 +523,73 @@ class ProducerTest extends AmqpTestCase
         }
 
         $this->getProducer()->publishBatch($messages, $routingKey, $exchange, $options);
+    }
+
+    /**
+     * @dataProvider exchangeDeclareDataProvider
+     *
+     * @param array $data
+     */
+    public function testPublishBatchCallsExchangeDeclareWithCorrectData(array $data)
+    {
+        $messages = [$this->getMessage()];
+        $routingKey = $this->routingKey();
+        $exchange = $data['exchange'] ?? null;
+        $options = $data['options'] ?? [];
+
+        if ($data['expectations']['exception'] ?? false) {
+            $this->expectException(AmqpException::class);
+        } else {
+            $expectedName = $data['expectations']['name'];
+            $expectedType = $data['expectations']['type'];
+            $expectedPassive = $data['expectations']['passive'] ?? false;
+            $expectedDurable = $data['expectations']['durable'] ?? true;
+            $expectedAutoDelete = $data['expectations']['auto_delete'] ?? false;
+            $expectedInternal = $data['expectations']['internal'] ?? false;
+            $expectedNowait = $data['expectations']['no_wait'] ?? false;
+            $expectedArguments = $data['expectations']['arguments'] ?? [];
+            $expectedTicket = $data['expectations']['ticket'] ?? null;
+            $this->exchangeDeclareExpectation(
+                $this->once(),
+                $this->returnCallback(
+                    function (
+                        $name,
+                        $type,
+                        $passive,
+                        $durable,
+                        $autoDelete,
+                        $internal,
+                        $nowait,
+                        $arguments,
+                        $ticket
+                    ) use (
+                        $expectedName,
+                        $expectedType,
+                        $expectedPassive,
+                        $expectedDurable,
+                        $expectedAutoDelete,
+                        $expectedInternal,
+                        $expectedNowait,
+                        $expectedArguments,
+                        $expectedTicket
+                    ) {
+                        $this->assertSame($expectedName, $name);
+                        $this->assertSame($expectedType, $type);
+                        $this->assertSame($expectedPassive, $passive);
+                        $this->assertSame($expectedDurable, $durable);
+                        $this->assertSame($expectedAutoDelete, $autoDelete);
+                        $this->assertSame($expectedInternal, $internal);
+                        $this->assertSame($expectedNowait, $nowait);
+                        $this->assertSame($expectedArguments, $arguments);
+                        $this->assertSame($expectedTicket, $ticket);
+                    }
+                )
+            );
+        }
+
+        $this->setMethodExpectations($this->channel, 'basic_publish', null, null);
+
+        $this->getProducer()->publishBatch($messages, $routingKey, $exchange, ['exchange' => $options]);
     }
 
     public function testPublishBatchWhenMessageIsNotAnImplementationOfProducible()

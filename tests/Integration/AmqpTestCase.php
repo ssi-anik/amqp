@@ -93,9 +93,9 @@ class AmqpTestCase extends TestCase
         }
     }
 
-    protected function exchangeDeclareExpectation($times = null)
+    protected function exchangeDeclareExpectation($times = null, $return = null)
     {
-        $this->setMethodExpectations($this->channel, 'exchange_declare', $times, null);
+        $this->setMethodExpectations($this->channel, 'exchange_declare', $times, $return);
     }
 
     protected function exchangeOptions(?array $options = null): array
