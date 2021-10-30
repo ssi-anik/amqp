@@ -2,6 +2,7 @@
 
 namespace Anik\Amqp\Tests\Integration;
 
+use Anik\Amqp\Connection;
 use Anik\Amqp\Exceptions\AmqpException;
 use Anik\Amqp\Exchanges\Direct;
 use Anik\Amqp\Exchanges\Exchange;
@@ -203,6 +204,11 @@ class ProducerTest extends AmqpTestCase
                 ],
             ],
         ];
+    }
+
+    public function testPublisherIsAChildOfConnection()
+    {
+        $this->assertInstanceOf(Connection::class, $this->getProducer());
     }
 
     /**
