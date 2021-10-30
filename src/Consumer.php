@@ -5,6 +5,7 @@ namespace Anik\Amqp;
 use Anik\Amqp\Exchanges\Exchange;
 use Anik\Amqp\Qos\Qos;
 use Anik\Amqp\Queues\Queue;
+use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
 
 class Consumer extends Connection
