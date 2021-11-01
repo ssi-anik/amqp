@@ -287,7 +287,7 @@ class ProducerTest extends AmqpTestCase
     public function testPublishBasic(array $data)
     {
         $msg = $data['message'] ?? $this->getMessage();
-        $routingKey = $data['routing_key'] ?? $this->routingKey();
+        $routingKey = $data['routing_key'] ?? $this->getRoutingKey();
         $exchange = $data['exchange'] ?? null;
         $mandatory = $data['options']['publish']['mandatory'] ?? false;
         $immediate = $data['options']['publish']['immediate'] ?? false;
@@ -324,7 +324,7 @@ class ProducerTest extends AmqpTestCase
     public function testPublishBasicCallsExchangeDeclareWithCorrectData(array $data)
     {
         $messages = $this->getMessage();
-        $routingKey = $this->routingKey();
+        $routingKey = $this->getRoutingKey();
         $exchange = $data['exchange'] ?? null;
         $options = $data['options'] ?? [];
 
@@ -391,7 +391,7 @@ class ProducerTest extends AmqpTestCase
     public function testPublish(array $data)
     {
         $msg = $data['message'] ?? $this->getMessage();
-        $routingKey = $data['routing_key'] ?? $this->routingKey();
+        $routingKey = $data['routing_key'] ?? $this->getRoutingKey();
         $exchange = $data['exchange'] ?? null;
         $mandatory = $data['options']['publish']['mandatory'] ?? false;
         $immediate = $data['options']['publish']['immediate'] ?? false;
@@ -427,7 +427,7 @@ class ProducerTest extends AmqpTestCase
     public function testPublishCallsExchangeDeclareWithCorrectData(array $data)
     {
         $messages = $this->getMessage();
-        $routingKey = $this->routingKey();
+        $routingKey = $this->getRoutingKey();
         $exchange = $data['exchange'] ?? null;
         $options = $data['options'] ?? [];
 
@@ -497,7 +497,7 @@ class ProducerTest extends AmqpTestCase
     {
         $messages = $data['message'] ?? $this->getMessage();
         $messages = is_array($messages) ? $messages : [$messages];
-        $routingKey = $data['routing_key'] ?? $this->routingKey();
+        $routingKey = $data['routing_key'] ?? $this->getRoutingKey();
         $exchange = $data['exchange'] ?? null;
         $mandatory = $data['options']['publish']['mandatory'] ?? false;
         $immediate = $data['options']['publish']['immediate'] ?? false;
@@ -533,7 +533,7 @@ class ProducerTest extends AmqpTestCase
     public function testPublishBatchCallsExchangeDeclareWithCorrectData(array $data)
     {
         $messages = [$this->getMessage()];
-        $routingKey = $this->routingKey();
+        $routingKey = $this->getRoutingKey();
         $exchange = $data['exchange'] ?? null;
         $options = $data['options'] ?? [];
 

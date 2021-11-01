@@ -119,12 +119,12 @@ class AmqpTestCase extends TestCase
         return Exchange::make($this->exchangeOptions($options));
     }
 
-    protected function routingKey(?string $key = null): string
+    protected function getRoutingKey(?string $key = null): string
     {
         return $key ?? self::ROUTING_KEY;
     }
 
-    protected function bindingKey(?string $key = null): string
+    protected function getBindingKey(?string $key = null): string
     {
         return $key ?? self::BINDING_KEY;
     }
