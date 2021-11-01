@@ -361,6 +361,25 @@ class ConsumerTest extends AmqpTestCase
         ];
     }
 
+    public function consumerWaitMethodParamProvider(): array
+    {
+        return [
+            'when no parameters are passed' => [[]],
+            'when all values are passed' => [
+                [
+                    'allowed_methods' => ['60,60'],
+                    'non_blocking' => true,
+                    'timeout' => 10,
+                ],
+            ],
+            'when only allowed methods are passed' => [
+                [
+                    'allowed_methods' => ['60,60'],
+                ],
+            ],
+        ];
+    }
+
     public function testConsumerIsAChildOfConnection()
     {
         $this->assertInstanceOf(Connection::class, $this->getConsumer());
@@ -623,6 +642,42 @@ class ConsumerTest extends AmqpTestCase
             $queue,
             $qos,
             $options ? ['qos' => $options] : []
+        );
+    }
+
+    /**
+     * @dataProvider consumerWaitMethodParamProvider
+     *
+     * @param array $data
+     *
+     * @throws \Anik\Amqp\Exceptions\AmqpException
+     */
+    public function testConsumerCallsWaitMethodOnChannelWhenWaitingForMessageWithAppropriateData(array $data)
+    {
+        $exchange = Topic::make(['name' => self::EXCHANGE_NAME, 'declare' => false]);
+        $queue = Queue::make(['name' => self::QUEUE_NAME, 'declare' => false]);
+        $options = $data['options'] ?? [];
+
+        $allowedMethods = $options['allowed_methods'] ?? null;
+        $nonBlocking = $options['non_blocking'] ?? false;
+        $timeout = $options['timeout'] ?? 0;
+        $this->exchangeDeclareExpectation($this->never());
+        $this->queueDeclareExpectation($this->never());
+        $this->queueBindExpectation($this->once());
+        $this->qosExpectation($this->never());
+        $this->channel->expects($this->exactly(2))->method('is_consuming')->willReturnOnConsecutiveCalls([true, false]);
+        $this->channel->expects($this->exactly(1))
+                      ->method('wait')
+                      ->with($allowedMethods, $nonBlocking, $timeout)
+                      ->willReturn(null);
+
+        $this->getConsumer()->consume(
+            $this->getConsumableInstance(false),
+            $this->getBindingKey(),
+            $exchange,
+            $queue,
+            null,
+            $options ? ['consume' => $options] : []
         );
     }
 }
