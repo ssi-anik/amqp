@@ -54,16 +54,9 @@ class AmqpTestCase extends TestCase
 
     protected function setMethodExpectations(MockObject $instance, $method, $times, $return): MockObject
     {
-        if (!$times instanceof InvocationOrder) {
-            $times = is_null($times) ? $this->any() : $this->exactly($times);
-        }
-
-        $invocation = $instance->expects($times)->method($method);
-        if ($return instanceof Stub) {
-            $invocation->will($return);
-        } else {
-            $invocation->willReturn($return);
-        }
+        $instance->expects($this->timesToInvocation($times))->method($method)->will(
+            $return instanceof Stub ? $return : $this->returnValue($return)
+        );
 
         return $instance;
     }
@@ -93,9 +86,21 @@ class AmqpTestCase extends TestCase
         }
     }
 
+    protected function timesToInvocation($times = null): InvocationOrder
+    {
+        return $times instanceof InvocationOrder ? $times : (is_null($times) ? $this->any() : $this->exactly($times));
+    }
+
+    protected function convertReturnToStub($return = null): Stub
+    {
+        return $return instanceof Stub ? $return : $this->returnValue($return);
+    }
+
     protected function exchangeDeclareExpectation($times = null, $return = null)
     {
-        $this->setMethodExpectations($this->channel, 'exchange_declare', $times, $return);
+        $this->channel->expects($this->timesToInvocation($times))->method('exchange_declare')->will(
+            $this->convertReturnToStub($return)
+        );
     }
 
     protected function exchangeOptions(?array $options = null): array
