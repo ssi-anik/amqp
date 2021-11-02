@@ -26,15 +26,5 @@
         "psr-4": {
             "Anik\\Amqp\\Tests\\": "tests/"
         }
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Anik\\Amqp\\ServiceProviders\\AmqpServiceProvider"
-            ],
-            "aliases": {
-                "Amqp": "Anik\\Amqp\\Facades\\Amqp"
-            }
-        }
     }
 }
