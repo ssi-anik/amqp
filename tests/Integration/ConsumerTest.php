@@ -361,6 +361,50 @@ class ConsumerTest extends AmqpTestCase
         ];
     }
 
+    public function queueBindDataProvider(): array
+    {
+        return [
+            'with no options passed' => [
+                [
+                    'expectations' => [
+                        'queue_name' => self::QUEUE_NAME,
+                        'exchange_name' => self::EXCHANGE_NAME,
+                    ],
+                ],
+            ],
+            'with arguments passed' => [
+                [
+                    'options' => [
+                        'arguments' => ['key' => 'value'],
+                    ],
+                    'expectations' => [
+                        'queue_name' => self::QUEUE_NAME,
+                        'exchange_name' => self::EXCHANGE_NAME,
+                        'arguments' => ['key' => 'value'],
+                    ],
+                ],
+            ],
+            'for default exchange should not bind to queue' => [
+                [
+                    'exchange' => Exchange::make(['name' => '', 'type' => Exchange::TYPE_DIRECT, 'declare' => false]),
+                    'expectations' => [
+                        'times' => $this->never(),
+                    ],
+                ],
+            ],
+            'with binding key' => [
+                [
+                    'binding_key' => 'my.binding.key',
+                    'expectations' => [
+                        'queue_name' => self::QUEUE_NAME,
+                        'exchange_name' => self::EXCHANGE_NAME,
+                        'binding_key' => 'my.binding.key',
+                    ],
+                ],
+            ],
+        ];
+    }
+
     public function consumerWaitMethodParamProvider(): array
     {
         return [
@@ -642,6 +686,58 @@ class ConsumerTest extends AmqpTestCase
             $queue,
             $qos,
             $options ? ['qos' => $options] : []
+        );
+    }
+
+    /**
+     * @dataProvider queueBindDataProvider
+     *
+     * @param array $data
+     *
+     * @throws \Anik\Amqp\Exceptions\AmqpException
+     */
+    public function testConsumerBindsQueueCorrectly(array $data)
+    {
+        $exchange = $data['exchange'] ?? Topic::make(['name' => self::EXCHANGE_NAME, 'declare' => false]);
+        $queue = $data['queue'] ?? Queue::make(['name' => self::QUEUE_NAME, 'declare' => false]);
+        $qos = $data['qos'] ?? null;
+        $options = $data['options'] ?? [];
+
+        $queueName = $data['expectations']['queue_name'] ?? ''; // when queue should never bind
+        $exchangeName = $data['expectations']['exchange_name'] ?? ''; // when queue should never bind
+        $bindingKey = $data['expectations']['binding_key'] ?? ''; //when queue should never bind
+        $nowait = $data['expectations']['no_wait'] ?? false;
+        $arguments = $data['expectations']['arguments'] ?? [];
+        $ticket = $data['expectations']['ticket'] ?? null;
+
+        $this->exchangeDeclareExpectation($this->never());
+        $this->queueDeclareExpectation($this->never());
+        $this->channel->expects($data['expectations']['times'] ?? $this->once())
+                      ->method('queue_bind')
+                      ->with($queueName, $exchangeName, $bindingKey, $nowait, $arguments, $ticket)
+                      ->willReturn(null);
+        // Don't consume any message
+        $this->consumerIsConsumingExpectation($this->once(), false);
+        $this->consumerWaitMethodExpectation($this->never());
+
+        $invocation = $this->channel->expects($data['expectations']['times'] ?? $this->never())
+                                    ->method('basic_qos')
+                                    ->willReturn(null);
+        if ($data['expectations']['prefetch_size'] ?? false) {
+            $invocation->with(
+                $data['expectations']['prefetch_size'] ?? 0,
+                $data['expectations']['prefetch_count'] ?? 0,
+                $data['expectations']['global'] ?? false
+            );
+        }
+
+        $this->getConsumer()->consume(
+            $this->getConsumableInstance(false),
+            $data['binding_key'] ?? $this->getBindingKey(''),
+            $exchange,
+            $queue,
+            $qos,
+            $options ? ['bind' => $options] : []
         );
     }
 
