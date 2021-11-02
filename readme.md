@@ -11,6 +11,10 @@ Previously, the package could be used with Laravel, Laravel Zero, Lumen Out of t
 has been removed. If you are looking for implementation with Laravel, you can
 use [anik/laravel-amqp](https://github.com/ssi-anik/laravel-amqp).
 
+# Examples
+
+Checkout the [repository](https://github.com/ssi-anik/laravel-rabbitmq-producer-consumer-example) for example.
+
 # Requirements
 
 - PHP `^7.2 | ^8.0`
@@ -434,4 +438,4 @@ $msg = new ConsumableMessage(function (ConsumableMessage $message/*, AMQPMessage
 });
 ```
 
-**NOTE**: Calling any method on `ConsumableMessage` instance without setting AMQPMessage will throw exception.
+**NOTE**: Calling any method on `ConsumableMessage` instance without setting **AMQPMessage** will throw exception.
