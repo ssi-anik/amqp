@@ -68,16 +68,16 @@ class Queue
         return $this;
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
     public function setName(string $name): self
     {
         $this->name = $name;
 
         return $this;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
     }
 
     public function setDeclare(bool $declare): self
@@ -92,21 +92,14 @@ class Queue
         return $this->declare;
     }
 
-    public function setPassive(bool $passive): self
-    {
-        $this->passive = $passive;
-
-        return $this;
-    }
-
     public function isPassive(): bool
     {
         return $this->passive;
     }
 
-    public function setDurable(bool $durable): self
+    public function setPassive(bool $passive): self
     {
-        $this->durable = $durable;
+        $this->passive = $passive;
 
         return $this;
     }
@@ -116,9 +109,9 @@ class Queue
         return $this->durable;
     }
 
-    public function setExclusive(bool $exclusive): self
+    public function setDurable(bool $durable): self
     {
-        $this->exclusive = $exclusive;
+        $this->durable = $durable;
 
         return $this;
     }
@@ -128,9 +121,9 @@ class Queue
         return $this->exclusive;
     }
 
-    public function setAutoDelete(bool $autoDelete): self
+    public function setExclusive(bool $exclusive): self
     {
-        $this->autoDelete = $autoDelete;
+        $this->exclusive = $exclusive;
 
         return $this;
     }
@@ -140,9 +133,9 @@ class Queue
         return $this->autoDelete;
     }
 
-    public function setNowait(bool $nowait): self
+    public function setAutoDelete(bool $autoDelete): self
     {
-        $this->nowait = $nowait;
+        $this->autoDelete = $autoDelete;
 
         return $this;
     }
@@ -150,6 +143,13 @@ class Queue
     public function isNowait(): bool
     {
         return $this->nowait;
+    }
+
+    public function setNowait(bool $nowait): self
+    {
+        $this->nowait = $nowait;
+
+        return $this;
     }
 
     public function getArguments(): array

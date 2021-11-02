@@ -62,9 +62,9 @@ class Consumer extends Connection
         return $this;
     }
 
-    protected function getDefaultConsumerTag(): string
+    public function getConsumerTag(): string
     {
-        return sprintf("anik.amqp_consumer_%s_%s", gethostname(), getmypid());
+        return $this->consumerTag;
     }
 
     public function setConsumerTag(string $tag): self
@@ -74,9 +74,9 @@ class Consumer extends Connection
         return $this;
     }
 
-    public function getConsumerTag(): string
+    public function isNoLocal(): bool
     {
-        return $this->consumerTag;
+        return $this->noLocal;
     }
 
     public function setNoLocal(bool $noLocal): self
@@ -86,9 +86,9 @@ class Consumer extends Connection
         return $this;
     }
 
-    public function isNoLocal(): bool
+    public function isNoAck(): bool
     {
-        return $this->noLocal;
+        return $this->noAck;
     }
 
     public function setNoAck(bool $noAck): self
@@ -98,9 +98,9 @@ class Consumer extends Connection
         return $this;
     }
 
-    public function isNoAck(): bool
+    public function isExclusive(): bool
     {
-        return $this->noAck;
+        return $this->exclusive;
     }
 
     public function setExclusive(bool $exclusive): self
@@ -110,9 +110,9 @@ class Consumer extends Connection
         return $this;
     }
 
-    public function isExclusive(): bool
+    public function isNowait(): bool
     {
-        return $this->exclusive;
+        return $this->nowait;
     }
 
     public function setNowait(bool $nowait): self
@@ -122,9 +122,9 @@ class Consumer extends Connection
         return $this;
     }
 
-    public function isNowait(): bool
+    public function getArguments(): array
     {
-        return $this->nowait;
+        return $this->arguments;
     }
 
     public function setArguments(array $arguments): self
@@ -134,9 +134,9 @@ class Consumer extends Connection
         return $this;
     }
 
-    public function getArguments(): array
+    public function getTicket(): ?int
     {
-        return $this->arguments;
+        return $this->ticket;
     }
 
     public function setTicket(int $ticket): self
@@ -144,29 +144,6 @@ class Consumer extends Connection
         $this->ticket = $ticket;
 
         return $this;
-    }
-
-    public function getTicket(): ?int
-    {
-        return $this->ticket;
-    }
-
-    protected function prepareQueue(?Queue $queue, array $options): Queue
-    {
-        $queue = $this->makeOrReconfigureQueue($queue, $options);
-
-        $queue->shouldDeclare() ? $this->queueDeclare($queue) : null;
-
-        return $queue;
-    }
-
-    protected function prepareQos(?Qos $qos, array $options = []): ?Qos
-    {
-        if ($options) {
-            $qos = $qos ? $qos->reconfigure($options) : Qos::make($options);
-        }
-
-        return $qos;
     }
 
     public function consume(
@@ -210,5 +187,28 @@ class Consumer extends Connection
         while ($this->getChannel()->is_consuming()) {
             $this->getChannel()->wait($allowedMethods, $nonBlocking, $timeout);
         }
+    }
+
+    protected function getDefaultConsumerTag(): string
+    {
+        return sprintf("anik.amqp_consumer_%s_%s", gethostname(), getmypid());
+    }
+
+    protected function prepareQueue(?Queue $queue, array $options): Queue
+    {
+        $queue = $this->makeOrReconfigureQueue($queue, $options);
+
+        $queue->shouldDeclare() ? $this->queueDeclare($queue) : null;
+
+        return $queue;
+    }
+
+    protected function prepareQos(?Qos $qos, array $options = []): ?Qos
+    {
+        if ($options) {
+            $qos = $qos ? $qos->reconfigure($options) : Qos::make($options);
+        }
+
+        return $qos;
     }
 }

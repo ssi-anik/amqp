@@ -15,11 +15,13 @@ class Qos
         $this->global = $global;
     }
 
-    public function setPrefetchCount(int $count): self
+    public static function make(array $options): Qos
     {
-        $this->prefetchCount = $count;
-
-        return $this;
+        return new static(
+            $options['prefetch_size'] ?? 0,
+            $options['prefetch_count'] ?? 0,
+            $options['global'] ?? false
+        );
     }
 
     public function getPrefetchCount(): int
@@ -27,9 +29,9 @@ class Qos
         return $this->prefetchCount;
     }
 
-    public function setGlobal(bool $global): self
+    public function setPrefetchCount(int $count): self
     {
-        $this->global = $global;
+        $this->prefetchCount = $count;
 
         return $this;
     }
@@ -39,9 +41,9 @@ class Qos
         return $this->global;
     }
 
-    public function setPrefetchSize(int $size): self
+    public function setGlobal(bool $global): self
     {
-        $this->prefetchSize = $size;
+        $this->global = $global;
 
         return $this;
     }
@@ -49,6 +51,13 @@ class Qos
     public function getPrefetchSize(): int
     {
         return $this->prefetchSize;
+    }
+
+    public function setPrefetchSize(int $size): self
+    {
+        $this->prefetchSize = $size;
+
+        return $this;
     }
 
     public function reconfigure(array $options): self
@@ -66,14 +75,5 @@ class Qos
         }
 
         return $this;
-    }
-
-    public static function make(array $options): Qos
-    {
-        return new static(
-            $options['prefetch_size'] ?? 0,
-            $options['prefetch_count'] ?? 0,
-            $options['global'] ?? false
-        );
     }
 }
