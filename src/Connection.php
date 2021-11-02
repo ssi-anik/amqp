@@ -135,7 +135,7 @@ abstract class Connection
             $queue->getTicket()
         );
 
-        if ($name !== $queue->getName()) {
+        if ('' === $queue->getName()) {
             $queue->setName($name);
         }
 
