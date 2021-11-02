@@ -3,6 +3,8 @@
 namespace Anik\Amqp\Tests\Integration;
 
 use Anik\Amqp\Exchanges\Exchange;
+use Anik\Amqp\Exchanges\Topic;
+use Anik\Amqp\Queues\Queue;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Connection\AMQPLazySSLConnection;
@@ -108,11 +110,26 @@ class AmqpTestCase extends TestCase
         return ($options ?? []) + [
                 'name' => self::EXCHANGE_NAME,
                 'type' => Exchange::TYPE_DIRECT,
-                'declare' => true,
-                'passive' => true,
+                'declare' => false,
+                'passive' => false,
                 'durable' => true,
                 'auto_delete' => false,
                 'internal' => false,
+                'no_wait' => false,
+                'arguments' => [],
+                'ticket' => null,
+            ];
+    }
+
+    protected function queueOptions(?array $options = null): array
+    {
+        return ($options ?? []) + [
+                'name' => self::QUEUE_NAME,
+                'declare' => false,
+                'passive' => false,
+                'durable' => true,
+                'exclusive' => false,
+                'auto_delete' => false,
                 'no_wait' => false,
                 'arguments' => [],
                 'ticket' => null,
@@ -124,6 +141,11 @@ class AmqpTestCase extends TestCase
         return Exchange::make($this->exchangeOptions($options));
     }
 
+    protected function getQueue(?array $options = null): Queue
+    {
+        return Queue::make($this->queueOptions($options));
+    }
+
     protected function getRoutingKey(?string $key = null): string
     {
         return $key ?? self::ROUTING_KEY;
@@ -132,6 +154,67 @@ class AmqpTestCase extends TestCase
     protected function getBindingKey(?string $key = null): string
     {
         return $key ?? self::BINDING_KEY;
+    }
+
+    public function exchangeDeclareDataProvider(): array
+    {
+        return [
+            'when exchange is an instance and configuration is empty' => [
+                [
+                    'exchange' => Exchange::make(
+                        [
+                            'name' => self::EXCHANGE_NAME,
+                            'type' => Exchange::TYPE_DIRECT,
+                            'declare' => true,
+                            'passive' => true,
+                            'arguments' => ['key' => 'value'],
+                            'ticket' => 1,
+                            'no_wait' => true,
+                        ]
+                    ),
+                    'expectations' => [
+                        'name' => self::EXCHANGE_NAME,
+                        'type' => Exchange::TYPE_DIRECT,
+                        'declare' => true,
+                        'passive' => true,
+                        'arguments' => ['key' => 'value'],
+                        'ticket' => 1,
+                        'no_wait' => true,
+                    ],
+                ],
+            ],
+            'when exchange is null and configuration is non-empty' => [
+                [
+                    'options' => [
+                        'name' => self::EXCHANGE_NAME,
+                        'type' => Exchange::TYPE_HEADERS,
+                        'declare' => true,
+                    ],
+                    'expectations' => [
+                        'name' => self::EXCHANGE_NAME,
+                        'type' => Exchange::TYPE_HEADERS,
+                    ],
+                ],
+            ],
+            'when exchange is an instance and configuration is non-empty' => [
+                [
+                    'exchange' => Topic::make(['name' => self::EXCHANGE_NAME, 'declare' => true, 'durable' => false]),
+                    'options' => [
+                        'arguments' => ['key' => 'value'],
+                        'ticket' => 12,
+                        'no_wait' => true,
+                    ],
+                    'expectations' => [
+                        'name' => self::EXCHANGE_NAME,
+                        'type' => Exchange::TYPE_TOPIC,
+                        'ticket' => 12,
+                        'arguments' => ['key' => 'value'],
+                        'durable' => false,
+                        'no_wait' => true,
+                    ],
+                ],
+            ],
+        ];
     }
 
     protected function setUp(): void

@@ -5,7 +5,6 @@ namespace Anik\Amqp\Tests\Integration;
 use Anik\Amqp\Connection;
 use Anik\Amqp\Exceptions\AmqpException;
 use Anik\Amqp\Exchanges\Direct;
-use Anik\Amqp\Exchanges\Exchange;
 use Anik\Amqp\Exchanges\Fanout;
 use Anik\Amqp\Exchanges\Headers;
 use Anik\Amqp\Exchanges\Topic;
@@ -49,70 +48,6 @@ class ProducerTest extends AmqpTestCase
             $ticket
         );
         $this->channel->expects($this->any())->method('publish_batch')->willReturn(true);
-    }
-
-    public function exchangeDeclareDataProvider(): array
-    {
-        return [
-            'when exchange is an instance and configuration is empty' => [
-                [
-                    'exchange' => Exchange::make(
-                        [
-                            'name' => self::EXCHANGE_NAME,
-                            'type' => Exchange::TYPE_DIRECT,
-                            'declare' => true,
-                            'passive' => true,
-                            'arguments' => ['key' => 'value'],
-                            'ticket' => 1,
-                            'no_wait' => true,
-                        ]
-                    ),
-                    'expectations' => [
-                        'times' => $this->once(),
-                        'name' => self::EXCHANGE_NAME,
-                        'type' => Exchange::TYPE_DIRECT,
-                        'declare' => true,
-                        'passive' => true,
-                        'arguments' => ['key' => 'value'],
-                        'ticket' => 1,
-                        'no_wait' => true,
-                    ],
-                ],
-            ],
-            'when exchange is null and configuration is non-empty' => [
-                [
-                    'options' => [
-                        'name' => self::EXCHANGE_NAME,
-                        'type' => Exchange::TYPE_HEADERS,
-                        'declare' => true,
-                    ],
-                    'expectations' => [
-                        'times' => $this->once(),
-                        'name' => self::EXCHANGE_NAME,
-                        'type' => Exchange::TYPE_HEADERS,
-                    ],
-                ],
-            ],
-            'when exchange is an instance and configuration is non-empty' => [
-                [
-                    'exchange' => Topic::make(['name' => self::EXCHANGE_NAME, 'declare' => true, 'durable' => false]),
-                    'options' => [
-                        'arguments' => ['key' => 'value'],
-                        'ticket' => 12,
-                        'no_wait' => true,
-                    ],
-                    'expectations' => [
-                        'times' => $this->once(),
-                        'name' => self::EXCHANGE_NAME,
-                        'type' => Exchange::TYPE_TOPIC,
-                        'ticket' => 12,
-                        'arguments' => ['key' => 'value'],
-                        'durable' => false,
-                        'no_wait' => true,
-                    ],
-                ],
-            ],
-        ];
     }
 
     public function publishMessageDataProvider(): array
@@ -417,8 +352,7 @@ class ProducerTest extends AmqpTestCase
         $exchange = $data['exchange'] ?? null;
         $options = $data['options'] ?? [];
 
-        $times = $this->timesToInvocation($data['expectations']['times'] ?? $this->never());
-        $this->channel->expects($times)->method('exchange_declare')->with(
+        $this->channel->expects($this->once())->method('exchange_declare')->with(
             $data['expectations']['name'],
             $data['expectations']['type'],
             $data['expectations']['passive'] ?? false,
@@ -448,8 +382,7 @@ class ProducerTest extends AmqpTestCase
         $exchange = $data['exchange'] ?? null;
         $options = $data['options'] ?? [];
 
-        $times = $this->timesToInvocation($data['expectations']['times'] ?? $this->never());
-        $this->channel->expects($times)->method('exchange_declare')->with(
+        $this->channel->expects($this->once())->method('exchange_declare')->with(
             $data['expectations']['name'],
             $data['expectations']['type'],
             $data['expectations']['passive'] ?? false,
@@ -470,6 +403,8 @@ class ProducerTest extends AmqpTestCase
      * @dataProvider exchangeDeclareDataProvider
      *
      * @param array $data
+     *
+     * @throws \Anik\Amqp\Exceptions\AmqpException
      */
     public function testPublishBatchCallsExchangeDeclareWithCorrectData(array $data)
     {
@@ -478,8 +413,7 @@ class ProducerTest extends AmqpTestCase
         $exchange = $data['exchange'] ?? null;
         $options = $data['options'] ?? [];
 
-        $times = $this->timesToInvocation($data['expectations']['times'] ?? $this->never());
-        $this->channel->expects($times)->method('exchange_declare')->with(
+        $this->channel->expects($this->once())->method('exchange_declare')->with(
             $data['expectations']['name'],
             $data['expectations']['type'],
             $data['expectations']['passive'] ?? false,
