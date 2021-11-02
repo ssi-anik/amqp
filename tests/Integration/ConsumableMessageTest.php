@@ -147,7 +147,7 @@ class ConsumableMessageTest extends AmqpTestCase
         }
         (new ConsumableMessage(
             function (ConsumableMessage $message) use ($params) {
-                $message->nack(...$params);
+                $message->nack(...array_values($params));
             }
         ))->setMessage($amqpMessage)->handle();
     }
