@@ -1,0 +1,22 @@
+name: Code sniffer
+on:
+    pull_request:
+    push:
+        branches:
+            - master
+            - v2
+
+jobs:
+    sniff:
+        name: Sniff codebase
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@v2
+
+            -   name: Install PHP Codesniffer
+                run: composer global require squizlabs/php_codesniffer
+
+            -   name: Check against PSR12 standard
+                run: |
+                    `composer global config bin-dir --absolute --quiet`/phpcs --standard=PSR12 ./src
