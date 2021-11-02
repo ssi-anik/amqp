@@ -2,6 +2,7 @@
 
 namespace Anik\Amqp;
 
+use Anik\Amqp\Exceptions\AmqpException;
 use Anik\Amqp\Exchanges\Exchange;
 use Anik\Amqp\Qos\Qos;
 use Anik\Amqp\Queues\Queue;
@@ -71,10 +72,12 @@ abstract class Connection
 
     protected function makeOrReconfigureExchange(?Exchange $exchange, array $options = []): Exchange
     {
+        if ($options) {
+            return $exchange ? $exchange->reconfigure($options) : Exchange::make($options);
+        }
+
         if (is_null($exchange)) {
-            return Exchange::make($options);
-        } elseif (0 < count($options)) {
-            return $exchange->reconfigure($options);
+            throw new AmqpException('Cannot configure exchange');
         }
 
         return $exchange;
@@ -82,10 +85,12 @@ abstract class Connection
 
     protected function makeOrReconfigureQueue(?Queue $queue, array $options = []): Queue
     {
+        if ($options) {
+            return $queue ? $queue->reconfigure($options) : Queue::make($options);
+        }
+
         if (is_null($queue)) {
-            return Queue::make($options);
-        } elseif (0 < count($options)) {
-            return $queue->reconfigure($options);
+            throw new AmqpException('Cannot configure queue');
         }
 
         return $queue;
