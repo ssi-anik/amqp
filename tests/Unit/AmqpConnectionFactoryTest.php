@@ -25,7 +25,7 @@ class AmqpConnectionFactoryTest extends TestCase
 
     public function testMakeMethodReturnsAmqpLazySslConnectionInstanceByDefault()
     {
-        $instance = AmqpConnectionFactory::make(...$this->loginCredentials());
+        $instance = AmqpConnectionFactory::make(...array_values($this->loginCredentials()));
         $this->assertInstanceOf(AMQPLazySSLConnection::class, $instance);
     }
 
