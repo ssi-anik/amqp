@@ -55,7 +55,7 @@ class ConsumerTest extends AmqpTestCase
         $this->setMethodExpectations($this->channel, 'basic_qos', $times, $return);
     }
 
-    protected function getConsumableInstance($assert = true): Consumable
+    protected function getConsumableInstance($assert = false): Consumable
     {
         return new ConsumableMessage(
             function (ConsumableMessage $message, AMQPMessage $original) use ($assert) {
@@ -469,7 +469,7 @@ class ConsumerTest extends AmqpTestCase
         );
 
         $consumer->consume(
-            $this->getConsumableInstance(false),
+            $this->getConsumableInstance(),
             $this->getBindingKey(),
             $this->getExchange(['declare' => false]),
             $this->getQueue(['declare' => false]),
@@ -508,7 +508,7 @@ class ConsumerTest extends AmqpTestCase
         $this->queueWaitMethodExpectation($this->never());
 
         $this->getConsumer()->consume(
-            $this->getConsumableInstance(false),
+            $this->getConsumableInstance(),
             $this->getBindingKey(),
             $exchange,
             $this->getQueue(['declare' => false]),
@@ -521,7 +521,7 @@ class ConsumerTest extends AmqpTestCase
     {
         $this->expectException(AmqpException::class);
         $this->expectExceptionMessage('Cannot configure exchange');
-        $this->getConsumer()->consume($this->getConsumableInstance(false));
+        $this->getConsumer()->consume($this->getConsumableInstance());
     }
 
     /**
@@ -553,7 +553,7 @@ class ConsumerTest extends AmqpTestCase
         $options = $data['options'] ?? [];
 
         $this->getConsumer()->consume(
-            $this->getConsumableInstance(false),
+            $this->getConsumableInstance(),
             $this->getBindingKey(),
             $this->getExchange(['declare' => false]),
             $queue,
@@ -567,7 +567,7 @@ class ConsumerTest extends AmqpTestCase
         $this->expectException(AmqpException::class);
         $this->expectExceptionMessage('Cannot configure queue');
         $this->getConsumer()->consume(
-            $this->getConsumableInstance(false),
+            $this->getConsumableInstance(),
             '',
             $this->getExchange(['declare' => false])
         );
@@ -590,7 +590,7 @@ class ConsumerTest extends AmqpTestCase
         $this->channel->expects($this->once())->method('queue_declare')->willReturn([$data['return']]);
 
         $this->getConsumer()->consume(
-            $this->getConsumableInstance(false),
+            $this->getConsumableInstance(),
             $this->getBindingKey(),
             $this->getExchange(['declare' => false]),
             $queue = $this->getQueue(['declare' => true, 'name' => $data['queue_name']])
@@ -625,7 +625,7 @@ class ConsumerTest extends AmqpTestCase
                       );
 
         $this->getConsumer()->consume(
-            $this->getConsumableInstance(false),
+            $this->getConsumableInstance(),
             $this->getBindingKey(),
             $this->getExchange(['declare' => false]),
             $this->getQueue(['declare' => false]),
@@ -665,7 +665,7 @@ class ConsumerTest extends AmqpTestCase
                       );
 
         $this->getConsumer()->consume(
-            $this->getConsumableInstance(false),
+            $this->getConsumableInstance(),
             $data['binding_key'] ?? $this->getBindingKey(''),
             $exchange,
             $queue,
@@ -687,7 +687,7 @@ class ConsumerTest extends AmqpTestCase
                       ->method('queue_bind');
 
         $this->getConsumer()->consume(
-            $this->getConsumableInstance(false),
+            $this->getConsumableInstance(),
             $data['binding_key'] ?? $this->getBindingKey(''),
             $this->getExchange(['name' => '', 'declare' => false]),
             $this->getQueue(['declare' => false])
@@ -721,7 +721,7 @@ class ConsumerTest extends AmqpTestCase
                       );
 
         $this->getConsumer()->consume(
-            $this->getConsumableInstance(false),
+            $this->getConsumableInstance(),
             $this->getBindingKey(),
             $this->getExchange(['declare' => false]),
             $this->getQueue(['declare' => false]),
