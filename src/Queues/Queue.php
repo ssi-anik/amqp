@@ -25,7 +25,7 @@ class Queue
     public static function make(array $options): Queue
     {
         if (!isset($options['name'])) {
-            throw new AmqpException('Exchange name is required.');
+            throw new AmqpException('Queue name is required.');
         }
 
         return (new static($options['name']))->reconfigure($options);
