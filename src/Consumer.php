@@ -139,7 +139,7 @@ class Consumer extends Connection
         return $this->ticket;
     }
 
-    public function setTicket(int $ticket): self
+    public function setTicket(?int $ticket): self
     {
         $this->ticket = $ticket;
 
