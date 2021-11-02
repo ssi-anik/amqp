@@ -7,15 +7,6 @@ use Anik\Amqp\Exchanges\Exchange;
 
 class Producer extends Connection
 {
-    protected function prepareExchange(?Exchange $exchange, array $options): Exchange
-    {
-        $exchange = $this->makeOrReconfigureExchange($exchange, $options['exchange'] ?? []);
-
-        $exchange->shouldDeclare() ? $this->exchangeDeclare($exchange) : null;
-
-        return $exchange;
-    }
-
     public function publish(
         Producible $message,
         string $routingKey = '',
@@ -35,7 +26,7 @@ class Producer extends Connection
             return false;
         }
 
-        $exchange = $this->prepareExchange($exchange, $options);
+        $exchange = $this->prepareExchange($exchange, $options['exchange'] ?? []);
 
         $channel = $this->getChannel();
         $mandatory = $options['publish']['mandatory'] ?? false;
@@ -74,7 +65,7 @@ class Producer extends Connection
         ?Exchange $exchange = null,
         array $options = []
     ): bool {
-        $exchange = $this->prepareExchange($exchange, $options);
+        $exchange = $this->prepareExchange($exchange, $options['exchange'] ?? []);
 
         $channel = $this->getChannel();
         $mandatory = $options['publish']['mandatory'] ?? false;

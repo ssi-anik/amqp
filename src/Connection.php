@@ -91,6 +91,15 @@ abstract class Connection
         return $queue;
     }
 
+    protected function prepareExchange(?Exchange $exchange, array $options): Exchange
+    {
+        $exchange = $this->makeOrReconfigureExchange($exchange, $options);
+
+        $exchange->shouldDeclare() ? $this->exchangeDeclare($exchange) : null;
+
+        return $exchange;
+    }
+
     public function exchangeDeclare(Exchange $exchange): self
     {
         $this->getChannel()->exchange_declare(

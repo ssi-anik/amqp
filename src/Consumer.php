@@ -151,12 +151,19 @@ class Consumer extends Connection
         return $this->ticket;
     }
 
+    protected function prepareQueue(?Queue $queue, array $options): Queue
+    {
+        $queue = $this->makeOrReconfigureQueue($queue, $options);
+
+        $queue->shouldDeclare() ? $this->queueDeclare($queue) : null;
+
+        return $queue;
+    }
+
     protected function prepareQos(?Qos $qos, array $options = []): ?Qos
     {
-        if (is_null($qos) && $options) {
-            $qos = Qos::make($options);
-        } elseif ($qos && $options) {
-            $qos->reconfigure($options);
+        if ($options) {
+            $qos = $qos ? $qos->reconfigure($options) : Qos::make($options);
         }
 
         return $qos;
@@ -174,11 +181,8 @@ class Consumer extends Connection
             $this->reconfigure($options['consumer']);
         }
 
-        $exchange = $this->makeOrReconfigureExchange($exchange, $options['exchange'] ?? []);
-        $queue = $this->makeOrReconfigureQueue($queue, $options['queue'] ?? []);
-
-        $exchange->shouldDeclare() ? $this->exchangeDeclare($exchange) : null;
-        $queue->shouldDeclare() ? $this->queueDeclare($queue) : null;
+        $exchange = $this->prepareExchange($exchange, $options['exchange'] ?? []);
+        $queue = $this->prepareQueue($queue, $options['queue'] ?? []);
 
         $this->queueBind($queue, $exchange, $bindingKey, $options['bind'] ?? []);
 
