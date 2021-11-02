@@ -729,4 +729,33 @@ class ConsumerTest extends AmqpTestCase
             $options ? ['consume' => $options] : []
         );
     }
+
+    public function testConsumerPassesReceivedMessageToConsumableMessageHandler()
+    {
+        $this->exchangeDeclareExpectation($this->never());
+        $this->queueDeclareExpectation($this->never());
+        $this->queueBindExpectation($this->once());
+        $this->qosExpectation($this->never());
+
+        // Don't consume any message
+        $this->queueIsConsumingExpectation($this->once(), false);
+        $this->queueWaitMethodExpectation($this->never());
+
+        // calls the callback, sort of reproduce the background mechanism
+        $this->channel->expects($this->once())->method('basic_consume')->with($this->anything())->will(
+            $this->returnCallback(
+                function ($q, $t, $nl, $na, $e, $nw, $cb) {
+                    $message = new AMQPMessage('message body', []);
+                    $message->setChannel($this->channel);
+                    call_user_func($cb, $message);
+                }
+            )
+        );
+        $this->getConsumer()->consume(
+            $this->getConsumableInstance(true),
+            $this->getBindingKey(),
+            $this->getExchange(['declare' => false]),
+            $this->getQueue(['declare' => false])
+        );
+    }
 }
