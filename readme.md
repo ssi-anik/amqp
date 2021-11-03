@@ -27,6 +27,8 @@ To install the package, run
 
 # Documentation
 
+For V1: https://medium.com/@sirajul.anik/rabbitmq-for-php-developers-c17cd019a90
+
 ## Connection
 
 To create an AMQP Connection, you can use
