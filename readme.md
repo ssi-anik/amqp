@@ -7,7 +7,7 @@ anik/amqp
 
 # Note
 
-Previously, the package could be used with Laravel, Laravel Zero, Lumen Out of the box. From `v2`, the Laravel support
+Previously, the package could be used with Laravel, Laravel Zero, Lumen out of the box. From `v2`, the Laravel support
 has been removed. If you are looking for implementation with Laravel, you can
 use [anik/laravel-amqp](https://github.com/ssi-anik/laravel-amqp).
 
@@ -111,7 +111,7 @@ When creating an exchange instance with
 - `TYPE_FANOUT` for **fanout** type.
 - `TYPE_HEADERS` for **headers** type.
 
-The `Exchange::make` method also accepts the following key when making an exchange instance.
+The `Exchange::make` method also accepts the following keys when making an exchange instance.
 
 - `declare` Type: `bool`. Default: `false`. If you want to declare the exchange.
 - `passive` Type: `bool`. Default: `false`. If the exchange is passive.
@@ -156,7 +156,7 @@ When creating a queue instance with
 
 - `Queue::make` - `name` keys must be present in the given array.
 
-The `Queue::make` method also accepts the following key when making a queue instance.
+The `Queue::make` method also accepts the following keys when making a queue instance.
 
 - `declare` Type: `bool`. Default: `false`. If you want to declare the queue.
 - `passive` Type: `bool`. Default: `false`. If the queue is passive.
@@ -255,12 +255,13 @@ use Anik\Amqp\Producer;
 - `$messages` Type: `Anik\Amqp\Producible[]`. If any of the message is not the type of `Producible` interface, it'll
   throw error.
 - `$routingKey` Type: `string`. Routing key. Default `''` (empty string).
-- `$exchange` Type: `null | Anik\Amqp\Exchange`.
+- `$exchange` Type: `null | Anik\Amqp\Exchanges\Exchange`.
 - `$options` Type: `array`. Runtime configuration.
     * Key `exchange` - Accepts: `array`.
-        - If you pass `null` as `$exchange`, then you must provide a valid configuration through this key. If you
-          pass `$exchange` with Exchange instance and `$options['exchange']`, exchange instance will be reconfigured
-          accordingly.
+        - If you pass `null` as `$exchange`, then you must provide a valid configuration through this key to create an
+          exchange under the hood. If you pass `$exchange` with Exchange instance and `$options['exchange']`, exchange
+          instance will be reconfigured accordingly with the values available in `$options['exchange']`. Keys are same
+          as `Exchange::make`'s `$options`.
     * Key `publish` - Accepts: `array`.
         - Key `mandatory` Default `false`.
         - Key `immediate` Default `false`.
@@ -284,9 +285,10 @@ use Anik\Amqp\Producer;
 - `$exchange` Type: `null | Anik\Amqp\Exchanges\Exchange`.
 - `$options` Type: `array`. Runtime configuration.
     * Key `exchange` - Accepts: `array`.
-        - If you pass `null` as `$exchange`, then you must provide a valid configuration through this key. If you
-          pass `$exchange` with Exchange instance and `$options['exchange']`, exchange instance will be reconfigured
-          accordingly.
+        - If you pass `null` as `$exchange`, then you must provide a valid configuration through this key to create an
+          exchange under the hood. If you pass `$exchange` with Exchange instance and `$options['exchange']`, exchange
+          instance will be reconfigured accordingly with the values available in `$options['exchange']`. Keys are same
+          as `Exchange::make`'s `$options`.
     * Key `publish` - Accepts: `array`.
         - Key `mandatory` Default `false`.
         - Key `immediate` Default `false`.
@@ -309,9 +311,10 @@ use Anik\Amqp\Producer;
 - `$exchange` Type: `null | Anik\Amqp\Exchanges\Exchange`.
 - `$options` Type: `array`. Runtime configuration.
     * Key `exchange` - Accepts: `array`.
-        - If you pass `null` as `$exchange`, then you must provide a valid configuration through this key. If you
-          pass `$exchange` with Exchange instance and `$options['exchange']`, exchange instance will be reconfigured
-          accordingly.
+        - If you pass `null` as `$exchange`, then you must provide a valid configuration through this key to create an
+          exchange under the hood. If you pass `$exchange` with Exchange instance and `$options['exchange']`, exchange
+          instance will be reconfigured accordingly with the values available in `$options['exchange']`. Keys are same
+          as `Exchange::make`'s `$options`.
     * Key `publish` - Accepts: `array`.
         - Key `mandatory` Default `false`.
         - Key `immediate` Default `false`.
@@ -398,26 +401,27 @@ use Anik\Amqp\Consumer;
 - `$queue` Type: `null | Anik\Amqp\Queues\Queue`.
 - `$qos` Type: `null | Anik\Amqp\Qos\Qos`.
 - `$options` Type: `array`. Runtime configuration.
-    * Key `consumer` - Accepts: `array`. Keys are same as `Consumer::__construct`'s options.
-    * Key `exchange` - Accepts: `array`. Keys are same as `Exchange::make`'s options.
-        - If you pass `null` as `$exchange`, then you must provide a valid configuration through this key. If you
-          pass `$exchange` with Exchange instance and `$options['exchange']`, exchange instance will be reconfigured
-          accordingly.
-    * Key `queue` - Accepts: `array`. Keys are same as `Queue::make`'s options.
-        - If you pass `null` as `$queue`, then you must provide a valid configuration through this key. If you
-          pass `$queue` with Queue instance and `$options['queue']`, queue instance will be reconfigured accordingly.
-    * Key `qos` - Accepts: `array`. Keys are same as `Qos::make`'s options.
+    * `consumer` - Accepts: `array`. Keys are same as `Consumer::__construct`'s options.
+    * `exchange` - Accepts: `array`. Keys are same as `Exchange::make`'s options.
+        - If you pass `null` as `$exchange`, then you must provide a valid configuration through this key to create an
+          exchange under the hood. If you pass `$exchange` with Exchange instance and `$options['exchange']`, exchange
+          instance will be reconfigured accordingly with the values available in `$options['exchange']`.
+    * `queue` - Accepts: `array`. Keys are same as `Queue::make`'s options.
+        - If you pass `null` as `$queue`, then you must provide a valid configuration through this key to create a queue
+          under the hood. If you pass `$queue` with Queue instance and `$options['queue']`, queue instance will be
+          reconfigured accordingly with the values available in `$options['queue']`.
+    * `qos` - Accepts: `array`. Keys are same as `Qos::make`'s options.
         - If you pass `$qos` with Qos instance and `$options['qos']`, qos instance will be reconfigured accordingly.
           If `$qos` is null and `$options['qos']` holds value, QoS will be applied to the channel. If `$qos` is `null`
           and `$options['qos']` is not available, **NO QoS WILL BE APPLIED TO THE CHANNEL**
-    * Key `bind` - Accepts: `array`. For binding queue to the exchange.
-        - Key `no_wait`. Default `false`.
-        - Key `arguments`. Default `[]`.
-        - Key `ticket`. Default `null`.
-    * Key `consume` - Accepts: `array`. Following values are passed to the `AMQPChannel::wait()`.
-        - Key `allowed_methods` Default `null`.
-        - Key `non_blocking` Default `false`.
-        - Key `timeout` Default `0`.
+    * `bind` - Accepts: `array`. For binding queue to the exchange.
+        - `no_wait`. Default `false`.
+        - `arguments`. Default `[]`.
+        - `ticket`. Default `null`.
+    * `consume` - Accepts: `array`. Following values are passed to the `AMQPChannel::wait()`.
+        - `allowed_methods` Default `null`.
+        - `non_blocking` Default `false`.
+        - `timeout` Default `0`.
 
 ## ConsumableMessage: Implementation of Consumable Interface
 
@@ -439,3 +443,7 @@ $msg = new ConsumableMessage(function (ConsumableMessage $message/*, AMQPMessage
 ```
 
 **NOTE**: Calling any method on `ConsumableMessage` instance without setting **AMQPMessage** will throw exception.
+
+# Issues?
+
+If you find any issue/bug/missing feature, please submit an issue and PRs if possible. 
