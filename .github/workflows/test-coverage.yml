@@ -1,0 +1,56 @@
+name: Run tests and coverage
+on:
+    pull_request:
+    push:
+        branches:
+            - master
+
+jobs:
+    tests:
+        name: PHP ${{ matrix.php }}
+        runs-on: ubuntu-latest
+
+        strategy:
+            fail-fast: false
+            matrix:
+                php: [ 7.2, 7.3, 7.4, 8.0 ]
+
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@v2
+
+            -   name: Install PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ matrix.php }}
+
+            -   name: Install dependencies
+                run: composer install --no-interaction --prefer-dist
+
+            -   name: Run tests
+                run: ./vendor/bin/phpunit --testdox --verbose
+
+    coverage:
+        needs: tests
+        name: Coverage
+        runs-on: ubuntu-latest
+
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@v2
+
+            -   uses: shivammathur/setup-php@v2
+                with:
+                    coverage: pcov
+                    php-version: 8.0
+
+            -   name: Install dependencies
+                run: composer install --no-interaction --prefer-dist
+
+            -   name: Run tests for coverage
+                run: ./vendor/bin/phpunit --coverage-clover=coverage.xml
+
+            -   name: Push to Codecov
+                run: bash <(curl -s https://codecov.io/bash)
+                env:
+                    CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

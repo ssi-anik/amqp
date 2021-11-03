@@ -2,89 +2,213 @@
 
 namespace Anik\Amqp;
 
-use Anik\Amqp\Exceptions\AmqpException;
+use Anik\Amqp\Exchanges\Exchange;
+use Anik\Amqp\Qos\Qos;
+use Anik\Amqp\Queues\Queue;
 use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Message\AMQPMessage;
-use PhpAmqpLib\Wire\AMQPTable;
+use PhpAmqpLib\Connection\AbstractConnection;
 
-class Consumer
+class Consumer extends Connection
 {
-    /* @var \PhpAmqpLib\Channel\AMQPChannel */
-    private $channel;
+    protected $consumerTag;
+    protected $noLocal = false;
+    protected $noAck = false;
+    protected $exclusive = false;
+    protected $nowait = false;
+    protected $arguments = [];
+    protected $ticket = null;
 
-    /* @var array */
-    private $queueInfo = [];
+    public function __construct(
+        AbstractConnection $connection,
+        ?AMQPChannel $channel = null,
+        array $options = []
+    ) {
+        parent::__construct($connection, $channel);
 
-    /**
-     * @return \PhpAmqpLib\Channel\AMQPChannel|null
-     */
-    public function getChannel () : ?AMQPChannel {
-        return $this->channel;
+        $this->setConsumerTag($this->getDefaultConsumerTag());
+        $this->reconfigure($options);
     }
 
-    /**
-     * @param \PhpAmqpLib\Channel\AMQPChannel $channel
-     *
-     * @return self
-     */
-    public function setChannel ($channel) : self {
-        $this->channel = $channel;
+    public function reconfigure(array $options): self
+    {
+        if (isset($options['tag'])) {
+            $this->setConsumerTag($options['tag']);
+        }
+
+        if (isset($options['no_local'])) {
+            $this->setNoLocal((bool)$options['no_local']);
+        }
+
+        if (isset($options['no_ack'])) {
+            $this->setNoAck((bool)$options['no_ack']);
+        }
+
+        if (isset($options['exclusive'])) {
+            $this->setExclusive((bool)$options['exclusive']);
+        }
+
+        if (isset($options['no_wait'])) {
+            $this->setNowait((bool)$options['no_wait']);
+        }
+
+        if (isset($options['arguments'])) {
+            $this->setArguments((array)$options['arguments']);
+        }
+
+        if (isset($options['ticket'])) {
+            $this->setTicket($options['ticket']);
+        }
 
         return $this;
     }
 
-    /**
-     * @param \Anik\Amqp\ConsumableMessage $handler
-     * @param                              $bindingKey
-     *
-     * @throws \Anik\Amqp\Exceptions\AmqpException
-     * @throws \ErrorException
-     */
-    public function consume (ConsumableMessage $handler, $bindingKey) {
-        if (!$this->channel instanceof AMQPChannel) {
-            throw new AmqpException('Channel is not defined.');
+    public function getConsumerTag(): string
+    {
+        return $this->consumerTag;
+    }
+
+    public function setConsumerTag(string $tag): self
+    {
+        $this->consumerTag = $tag;
+
+        return $this;
+    }
+
+    public function isNoLocal(): bool
+    {
+        return $this->noLocal;
+    }
+
+    public function setNoLocal(bool $noLocal): self
+    {
+        $this->noLocal = $noLocal;
+
+        return $this;
+    }
+
+    public function isNoAck(): bool
+    {
+        return $this->noAck;
+    }
+
+    public function setNoAck(bool $noAck): self
+    {
+        $this->noAck = $noAck;
+
+        return $this;
+    }
+
+    public function isExclusive(): bool
+    {
+        return $this->exclusive;
+    }
+
+    public function setExclusive(bool $exclusive): self
+    {
+        $this->exclusive = $exclusive;
+
+        return $this;
+    }
+
+    public function isNowait(): bool
+    {
+        return $this->nowait;
+    }
+
+    public function setNowait(bool $nowait): self
+    {
+        $this->nowait = $nowait;
+
+        return $this;
+    }
+
+    public function getArguments(): array
+    {
+        return $this->arguments;
+    }
+
+    public function setArguments(array $arguments): self
+    {
+        $this->arguments = $arguments;
+
+        return $this;
+    }
+
+    public function getTicket(): ?int
+    {
+        return $this->ticket;
+    }
+
+    public function setTicket(?int $ticket): self
+    {
+        $this->ticket = $ticket;
+
+        return $this;
+    }
+
+    public function consume(
+        Consumable $handler,
+        string $bindingKey = '',
+        ?Exchange $exchange = null,
+        ?Queue $queue = null,
+        ?Qos $qos = null,
+        array $options = []
+    ) {
+        if (isset($options['consumer'])) {
+            $this->reconfigure($options['consumer']);
         }
 
-        $channel = $this->getChannel();
+        $exchange = $this->prepareExchange($exchange, $options['exchange'] ?? []);
+        $queue = $this->prepareQueue($queue, $options['queue'] ?? []);
 
-        $callback = function (AMQPMessage $msg) use ($handler) {
-            $handler->setStream($msg->body)->setAmqpMessage($msg)->setDeliveryInfo((new Delivery([
-                'body'          => $msg->body,
-                'delivery_info' => $msg->delivery_info,
-            ])))->handle();
-        };
+        $this->queueBind($queue, $exchange, $bindingKey, $options['bind'] ?? []);
 
-        /* Exchange properties */
-        $ep = $handler->getExchange()->getProperties();
-        if (isset($ep['declare']) && $ep['declare']) {
-            $channel->exchange_declare($ep['name'], $ep['type'], $ep['passive'] ?? false, $ep['durable'] ?? true, $ep['auto_delete'] ?? false, $ep['internal'] ?? false, $ep['nowait'] ?? false, new AMQPTable($ep['properties'] ?? []));
+        if ($qos = $this->prepareQos($qos, $options['qos'] ?? [])) {
+            $this->applyQos($qos);
         }
 
-        /* Queue properties */
-        $qp = $handler->getQueue()->getProperties();
-        if (!isset($qp['name']) || empty($qp['name']) || (isset($qp['declare']) && $qp['declare'])) {
-            // you cannot nowait while the queue doesn't have any name. Queue name is required. Overwrite the `$qp['nowait']` value to `true` forcefully.
-            if (empty($handler->getQueue()->getName()) && (!isset($qp['nowait']) || true == $qp['nowait'])) {
-                $qp['nowait'] = false;
-            }
+        $this->getChannel()->basic_consume(
+            $queue->getName(),
+            $this->getConsumerTag(),
+            $this->isNoLocal(),
+            $this->isNoAck(),
+            $this->isExclusive(),
+            $this->isNowait(),
+            function ($message) use ($handler) {
+                $handler->setMessage($message)->handle();
+            },
+            $this->getTicket(),
+            $this->getArguments()
+        );
 
-            $r = $channel->queue_declare($handler->getQueue()
-                                                 ->getName(), $qp['passive'] ?? false, $qp['durable'] ?? true, $qp['exclusive'] ?? true, $qp['auto_delete'] ?? false, $qp['nowait'] ?? false, new AMQPTable($qp['d_properties'] ?? []));
-            $this->queueInfo = $r ?: [];
+        $allowedMethods = $options['consume']['allowed_methods'] ?? null;
+        $nonBlocking = $options['consume']['non_blocking'] ?? false;
+        $timeout = $options['consume']['timeout'] ?? 0;
+        while ($this->getChannel()->is_consuming()) {
+            $this->getChannel()->wait($allowedMethods, $nonBlocking, $timeout);
+        }
+    }
+
+    protected function getDefaultConsumerTag(): string
+    {
+        return sprintf("anik.amqp_consumer_%s_%s", gethostname(), getmypid());
+    }
+
+    protected function prepareQueue(?Queue $queue, array $options): Queue
+    {
+        $queue = $this->makeOrReconfigureQueue($queue, $options);
+
+        $queue->shouldDeclare() ? $this->queueDeclare($queue) : null;
+
+        return $queue;
+    }
+
+    protected function prepareQos(?Qos $qos, array $options = []): ?Qos
+    {
+        if ($options) {
+            $qos = $qos ? $qos->reconfigure($options) : Qos::make($options);
         }
 
-        // No queue can be bound to the default exchange.
-        if ($handler->getExchange()->getName()) {
-            $channel->queue_bind($handler->getQueue()->getName(), $handler->getExchange()->getName(), $bindingKey, $qp['nowait'] ?? false, new AMQPTable($qp['b_properties'] ?? []));
-        }
-
-        /* Consumer properties */
-        $consProp = $handler->getConsumer()->getProperties();
-        $channel->basic_consume($handler->getQueue()
-                                        ->getName(), $consProp['tag'] ?? '', $consProp['no_local'] ?? false, $consProp['no_ack'] ?? false, $consProp['exclusive'] ?? false, $consProp['nowait'] ?? false, $callback, $consProp['ticket'] ?? null, $consProp['parameters'] ?? []);
-
-        while ( $channel->is_consuming() ) {
-            $channel->wait();
-        }
+        return $qos;
     }
 }
