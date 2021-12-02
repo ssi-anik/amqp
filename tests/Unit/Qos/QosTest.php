@@ -23,7 +23,7 @@ class QosTest extends TestCase
         $qos = new Qos();
         $this->assertSame(0, $qos->getPrefetchSize());
         $this->assertSame(0, $qos->getPrefetchCount());
-        $this->assertSame(false, $qos->isGlobal());
+        $this->assertFalse($qos->isGlobal());
     }
 
     /**
