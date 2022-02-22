@@ -1,7 +1,7 @@
 anik/amqp
 [![codecov](https://codecov.io/gh/ssi-anik/amqp/branch/master/graph/badge.svg?token=M88JATDUHN)](https://codecov.io/gh/ssi-anik/amqp)
-[![Total Downloads](https://poser.pugx.org/anik/amqp/downloads)](//packagist.org/packages/anik/amqp)
-[![Latest Stable Version](https://poser.pugx.org/anik/amqp/v)](//packagist.org/packages/anik/amqp)
+[![Total Downloads](http://poser.pugx.org/anik/amqp/downloads)](//packagist.org/packages/anik/amqp)
+[![Latest Stable Version](http://poser.pugx.org/anik/amqp/v)](//packagist.org/packages/anik/amqp)
 ===
 `anik/amqp` is a php-amqplib wrapper that eases the consumption of RabbitMQ. A painless way of using RabbitMQ.
 
