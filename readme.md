@@ -9,7 +9,7 @@ anik/amqp
 
 Previously, the package could be used with Laravel, Laravel Zero, Lumen out of the box. From `v2`, the Laravel support
 has been removed. If you are looking for implementation with Laravel, you can
-use [anik/laravel-amqp](https://github.com/ssi-anik/laravel-amqp). If you were using this package with Laravel, and you want to upgrade to **Laravel 9**, please consider using using [anik/amqp-to-laravel-amqp](https://github.com/ssi-anik/amqp-to-laravel-amqp) if you want to migrate to `anik/laravel-amqp` later.
+use [anik/laravel-amqp](https://github.com/ssi-anik/laravel-amqp). If you were using this package with Laravel, and you want to upgrade to **Laravel 9**, please consider using [anik/amqp-to-laravel-amqp](https://github.com/ssi-anik/amqp-to-laravel-amqp) if you want to migrate to `anik/laravel-amqp` later.
 
 # Examples
 
