@@ -438,7 +438,8 @@ use Anik\Amqp\ConsumableMessage;
 // use PhpAmqpLib\Message\AMQPMessage;
 
 $msg = new ConsumableMessage(function (ConsumableMessage $message/*, AMQPMessage $original*/) {
-    echo $message->getMessageBody();
+    echo $message->getMessageBody() . PHP_EOL;
+    echo $message->getRoutingKey() . PHP_EOL;
     $message->ack();
     // Alternatively, $original->ack();
 });
