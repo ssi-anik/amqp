@@ -1,7 +1,7 @@
 anik/amqp
 [![codecov](https://codecov.io/gh/ssi-anik/amqp/branch/master/graph/badge.svg?token=M88JATDUHN)](https://codecov.io/gh/ssi-anik/amqp)
-[![Total Downloads](https://poser.pugx.org/anik/amqp/downloads)](//packagist.org/packages/anik/amqp)
-[![Latest Stable Version](https://poser.pugx.org/anik/amqp/v)](//packagist.org/packages/anik/amqp)
+[![Total Downloads](http://poser.pugx.org/anik/amqp/downloads)](//packagist.org/packages/anik/amqp)
+[![Latest Stable Version](http://poser.pugx.org/anik/amqp/v)](//packagist.org/packages/anik/amqp)
 ===
 `anik/amqp` is a php-amqplib wrapper that eases the consumption of RabbitMQ. A painless way of using RabbitMQ.
 
@@ -9,7 +9,7 @@ anik/amqp
 
 Previously, the package could be used with Laravel, Laravel Zero, Lumen out of the box. From `v2`, the Laravel support
 has been removed. If you are looking for implementation with Laravel, you can
-use [anik/laravel-amqp](https://github.com/ssi-anik/laravel-amqp).
+use [anik/laravel-amqp](https://github.com/ssi-anik/laravel-amqp). If you were using this package with Laravel, and you want to upgrade to **Laravel 9**, please consider using [anik/amqp-to-laravel-amqp](https://github.com/ssi-anik/amqp-to-laravel-amqp) if you want to migrate to `anik/laravel-amqp` later.
 
 # Examples
 
@@ -26,6 +26,8 @@ To install the package, run
 > `composer require anik/amqp`
 
 # Documentation
+
+For V1: https://medium.com/@sirajul.anik/rabbitmq-for-php-developers-c17cd019a90
 
 ## Connection
 
