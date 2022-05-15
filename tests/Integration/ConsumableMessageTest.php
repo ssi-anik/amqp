@@ -221,6 +221,17 @@ class ConsumableMessageTest extends AmqpTestCase
         ))->setMessage($amqpMessage)->handle();
     }
 
+    public function testConsumableMessageCanRetrieveRoutingKey()
+    {
+        $amqpMessage = $this->getAmqpMessage();
+        $amqpMessage->expects($this->once())->method('getRoutingKey')->willReturn('test.routing_key');
+        (new ConsumableMessage(
+            function (ConsumableMessage $message) {
+                $message->getRoutingKey();
+            }
+        ))->setMessage($amqpMessage)->handle();
+    }
+
     public function consumableMessageMethodsProvider(): array
     {
         return [
@@ -229,6 +240,7 @@ class ConsumableMessageTest extends AmqpTestCase
             'reject' => ['reject'],
             'getMessageBody' => ['getMessageBody'],
             'handle' => ['handle'],
+            'getRoutingKey' => ['getRoutingKey'],
         ];
     }
 

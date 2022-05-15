@@ -52,6 +52,13 @@ class ConsumableMessage implements Consumable
         return $this->message->getBody();
     }
 
+    public function getRoutingKey(): string
+    {
+        $this->ensureThatMessageIsSet();
+
+        return $this->message->getRoutingKey();
+    }
+
     public function handle(): void
     {
         $this->ensureThatMessageIsSet();
