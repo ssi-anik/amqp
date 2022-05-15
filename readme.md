@@ -440,6 +440,22 @@ $msg = new ConsumableMessage(function (ConsumableMessage $message/*, AMQPMessage
     echo $message->getRoutingKey() . PHP_EOL;
     $message->ack();
     // Alternatively, $original->ack();
+
+    /** 
+     * Method: `decodeMessage` 
+     * Returns:
+     *      - `array` if message body contains valid json
+     *      - `null` if json could not be decoded 
+     */
+    var_dump($message->decodeMessage());
+
+    /** 
+     * Method: `decodeMessageAsObject` 
+     * Returns:
+     *      - `\stdClass` if message body contains valid json
+     *      - `null` if json could not be decoded 
+     */
+    var_dump($message->decodeMessageAsObject());
 });
 ```
 
