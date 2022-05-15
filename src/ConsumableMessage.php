@@ -4,6 +4,7 @@ namespace Anik\Amqp;
 
 use Anik\Amqp\Exceptions\AmqpException;
 use PhpAmqpLib\Message\AMQPMessage;
+use stdClass;
 
 class ConsumableMessage implements Consumable
 {
@@ -57,6 +58,27 @@ class ConsumableMessage implements Consumable
         $this->ensureThatMessageIsSet();
 
         return $this->message->getRoutingKey();
+    }
+
+    protected function jsonDecodeMessage(bool $associative = false, int $depth = 512)
+    {
+        $data = json_decode($this->getMessageBody(), $associative, $depth);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return null;
+        }
+
+        return $data;
+    }
+
+    public function decodeMessage(int $depth = 512): ?array
+    {
+        return $this->jsonDecodeMessage(true, $depth);
+    }
+
+    public function decodeMessageAsObject(int $depth = 512): ?stdClass
+    {
+        return $this->jsonDecodeMessage(false, $depth);
     }
 
     public function handle(): void

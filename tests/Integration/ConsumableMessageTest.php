@@ -5,6 +5,7 @@ namespace Anik\Amqp\Tests\Integration;
 use Anik\Amqp\ConsumableMessage;
 use Anik\Amqp\Exceptions\AmqpException;
 use PhpAmqpLib\Message\AMQPMessage;
+use PHPUnit\Framework\Assert;
 
 class ConsumableMessageTest extends AmqpTestCase
 {
@@ -256,5 +257,44 @@ class ConsumableMessageTest extends AmqpTestCase
             function () {
             }
         ))->$method();
+    }
+
+    public function decodeMessageDataProvider(): array
+    {
+        return [
+            'not a json message' => [
+                [
+                    'message' => 'this is a simple text message',
+                    'expectation' => [],
+                ],
+            ],
+            'valid json message' => [
+                [
+                    'message' => '{"package":"amqp"}',
+                    'expectation' => ['key' => 'package', 'value' => 'amqp'],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider decodeMessageDataProvider
+     */
+    public function testMessageDecoding(array $data)
+    {
+        $amqpMessage = new AMQPMessage($data['message']);
+        $expectation = $data['expectation'];
+
+        (new ConsumableMessage(
+            function (ConsumableMessage $message) use ($expectation) {
+                if (empty($expectation)) {
+                    Assert::assertNull($message->decodeMessage());
+                    Assert::assertNull($message->decodeMessageAsObject());
+                } else {
+                    Assert::assertSame($expectation['value'], $message->decodeMessage()[$expectation['key']]);
+                    Assert::assertSame($expectation['value'], $message->decodeMessageAsObject()->{$expectation['key']});
+                }
+            }
+        ))->setMessage($amqpMessage)->handle();
     }
 }
