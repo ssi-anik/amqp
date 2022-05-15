@@ -1,5 +1,6 @@
 anik/amqp
 [![codecov](https://codecov.io/gh/ssi-anik/amqp/branch/master/graph/badge.svg?token=M88JATDUHN)](https://codecov.io/gh/ssi-anik/amqp)
+[![PHP Version Require](http://poser.pugx.org/anik/amqp/require/php)](//packagist.org/packages/anik/amqp)
 [![Total Downloads](http://poser.pugx.org/anik/amqp/downloads)](//packagist.org/packages/anik/amqp)
 [![Latest Stable Version](http://poser.pugx.org/anik/amqp/v)](//packagist.org/packages/anik/amqp)
 ===
