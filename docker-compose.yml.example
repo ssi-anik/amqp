@@ -16,7 +16,7 @@ services:
             context: .
         hostname: rabbitmq-server
         ports:
-            - 5672:5672
-            - 15672:15672
+            - "5672:5672"
+            - "15672:15672"
         # volumes:
         # - ${BACKUP_PATH}/rabbitmq/amqp-package:/var/lib/rabbitmq/mnesia/
