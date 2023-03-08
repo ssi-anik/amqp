@@ -10,7 +10,7 @@ class AmqpConnectionConfigBuilder implements ConfigBuilder
         'host' => 'setHost',
         'port' => 'setPort',
         'user' => 'setUser',
-        'password' => 'setUser',
+        'password' => 'setPassword',
         'vhost' => 'setVhost',
         'io' => 'setIoType',
         'secure' => 'setIsSecure',
