@@ -94,4 +94,8 @@ class ConsumableMessage implements Consumable
 
         return $this;
     }
+    
+    public function getMessage(): ?AMQPMessage {
+        return this->message;
+    }
 }
